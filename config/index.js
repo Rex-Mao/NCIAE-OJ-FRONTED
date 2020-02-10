@@ -4,6 +4,10 @@
 
 const path = require('path')
 const commonProxy = {
+  pathRewrite: {
+    '^/api': '/',   //重写接口
+    '^/public' : '/'
+  },
   onProxyReq: (proxyReq, req, res) => {
     proxyReq.setHeader('Referer', process.env.TARGET)
   },

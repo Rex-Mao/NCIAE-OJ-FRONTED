@@ -121,7 +121,7 @@ export default {
     })
   },
   getWebsiteConfig () {
-    return ajax('admin/website', 'get')
+    return ajax('content-center/website', 'get')
   },
   editWebsiteConfig (data) {
     return ajax('admin/website', 'post', {

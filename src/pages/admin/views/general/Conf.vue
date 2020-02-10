@@ -42,22 +42,22 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item :label="$t('m.Base_Url')" required>
-              <el-input v-model="websiteConfig.website_base_url" placeholder="Website Base Url"></el-input>
+              <el-input v-model="websiteConfig.websiteBaseUrl" placeholder="Website Base Url"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item :label="$t('m.Name')" required>
-              <el-input v-model="websiteConfig.website_name" placeholder="Website Name"></el-input>
+              <el-input v-model="websiteConfig.websiteName" placeholder="Website Name"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item :label="$t('m.Shortcut')" required>
-              <el-input v-model="websiteConfig.website_name_shortcut" placeholder="Website Name Shortcut"></el-input>
+              <el-input v-model="websiteConfig.websiteNameShortcut" placeholder="Website Name Shortcut"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item :label="$t('m.Footer')" required>
-              <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="websiteConfig.website_footer"
+              <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="websiteConfig.websiteFooter"
                         placeholder="Website Footer HTML"></el-input>
             </el-form-item>
           </el-col>
@@ -65,7 +65,7 @@
             <el-col :span="12">
               <el-form-item :label="$t('m.Allow_Register')" label-width="200px">
                 <el-switch
-                  v-model="websiteConfig.allow_register"
+                  v-model="websiteConfig.allowRegister"
                   active-color="#13ce66"
                   inactive-color="#ff4949">
                 </el-switch>
@@ -74,7 +74,7 @@
             <el-col :span="12">
               <el-form-item :label="$t('m.Submission_List_Show_All')" label-width="200px">
                 <el-switch
-                  v-model="websiteConfig.submission_list_show_all"
+                  v-model="websiteConfig.submissionListShowAll"
                   active-color="#13ce66"
                   inactive-color="#ff4949">
                 </el-switch>

@@ -8,11 +8,12 @@
           <p class="title">{{$t('m.Description')}}</p>
           <p class="content" v-html=problem.description></p>
           <!-- {{$t('m.music')}} -->
-          <p class="title">{{$t('m.Input')}} <span v-if="problem.io_mode.io_mode=='File IO'">({{$t('m.FromFile')}}: {{ problem.io_mode.input }})</span></p>
-          <p class="content" v-html=problem.input_description></p>
-
-          <p class="title">{{$t('m.Output')}} <span v-if="problem.io_mode.io_mode=='File IO'">({{$t('m.ToFile')}}: {{ problem.io_mode.output }})</span></p>
-          <p class="content" v-html=problem.output_description></p>
+          <!-- <span v-if="problem.io_mode.io_mode=='File IO'">({{$t('m.FromFile')}}: {{ problem.io_mode.input }})</span> -->
+          <p class="title">{{$t('m.Input')}} </p>
+          <p class="content" v-html=problem.finput></p>
+          <!-- <span v-if="problem.io_mode.io_mode=='File IO'">({{$t('m.ToFile')}}: {{ problem.io_mode.output }})</span> -->
+          <p class="title">{{$t('m.Output')}} </p>
+          <p class="content" v-html=problem.foutput></p>
 
           <div v-for="(sample, index) of problem.samples" :key="index">
             <div class="flex-container sample">
@@ -41,9 +42,9 @@
             </Card>
           </div>
 
-          <div v-if="problem.source">
+          <div v-if="problem.author">
             <p class="title">{{$t('m.Source')}}</p>
-            <p class="content">{{problem.source}}</p>
+            <p class="content">{{problem.author}}</p>
           </div>
 
         </div>
@@ -90,6 +91,7 @@
                 <Input v-model="captchaCode" class="captcha-code"/>
               </div>
             </template>
+            <!-- @TODO : Warning !!! When you cover the authentication remember to reset the problemSubmitDisabled -->
             <Button type="warning" icon="edit" :loading="submitting" @click="submitCode"
                     :disabled="problemSubmitDisabled || submitted"
                     class="fl-right">
@@ -140,35 +142,35 @@
         </div>
         <ul>
           <li><p>ID</p>
-            <p>{{problem._id}}</p></li>
+            <p>{{problem.pid}}</p></li>
           <li>
             <p>{{$t('m.Time_Limit')}}</p>
-            <p>{{problem.time_limit}}MS</p></li>
+            <p>{{problem.timeLimit}}MS</p></li>
           <li>
             <p>{{$t('m.Memory_Limit')}}</p>
-            <p>{{problem.memory_limit}}MB</p></li>
+            <p>{{problem.memoryLimit}}MB</p></li>
           <li>
-          <li>
+          <!-- <li>
             <p>{{$t('m.IOMode')}}</p>
             <p>{{problem.io_mode.io_mode}}</p>
           </li>
           <li>
             <p>{{$t('m.Created')}}</p>
-            <p>{{problem.created_by.username}}</p></li>
-          <li v-if="problem.difficulty">
+            <p>{{problem.created_by.username}}</p></li> -->
+          <!-- <li v-if="problem.difficulty">
             <p>{{$t('m.Level')}}</p>
-            <p>{{$t('m.' + problem.difficulty)}}</p></li>
-          <li v-if="problem.total_score">
+            <p>{{$t('m.' + problem.difficulty)}}</p></li> -->
+          <!-- <li v-if="problem.total_score">
             <p>{{$t('m.Score')}}</p>
             <p>{{problem.total_score}}</p>
-          </li>
+          </li> -->
           <li>
             <p>{{$t('m.Tags')}}</p>
             <p>
               <Poptip trigger="hover" placement="left-end">
                 <a>{{$t('m.Show')}}</a>
                 <div slot="content">
-                  <Tag v-for="tag in problem.tags" :key="tag">{{tag}}</Tag>
+                  <Tag v-for="tag in problem.tags" :key="tag">{{tag.tname}}</Tag>
                 </div>
               </Poptip>
             </p>
@@ -210,7 +212,7 @@
   import {pie, largePie} from './chartData'
 
   // 只显示这些状态的图形占用
-  const filtedStatus = ['-1', '-2', '0', '1', '2', '3', '4', '8']
+  // const filtedStatus = ['-1', '-2', '0', '1', '2', '3', '4', '8']
 
   export default {
     name: 'Problem',
@@ -238,8 +240,15 @@
           result: 9
         },
         problem: {
+          pid: '',
           title: '',
           description: '',
+          timeLimit: '',
+          memoryLimit: '',
+          submitNum: '',
+          solvedNum: '',
+          author: '',
+          specialJudge: '',
           hint: '',
           my_status: '',
           template: {},
@@ -286,37 +295,38 @@
           this.$Loading.finish()
           let problem = res.data.data
           this.changeDomTitle({title: problem.title})
-          api.submissionExists(problem.id).then(res => {
-            this.submissionExists = res.data.data
-          })
+          // api.submissionExists(problem.id).then(res => {
+          //   this.submissionExists = res.data.data
+          // })
+          problem.languages = ['C', 'C++', 'Java']
           problem.languages = problem.languages.sort()
           this.problem = problem
           this.changePie(problem)
 
           // 在beforeRouteEnter中修改了, 说明本地有code，无需加载template
-          if (this.code !== '') {
-            return
-          }
+          // if (this.code !== '') {
+          //   return
+          // }
           // try to load problem template
-          this.language = this.problem.languages[0]
-          let template = this.problem.template
-          if (template && template[this.language]) {
-            this.code = template[this.language]
-          }
+          // this.language = this.problem.languages[0]
+          // let template = this.problem.template
+          // if (template && template[this.language]) {
+          //   this.code = template[this.language]
+          // }
         }, () => {
           this.$Loading.error()
         })
       },
       changePie (problemData) {
         // 只显示特定的一些状态
-        for (let k in problemData.statistic_info) {
-          if (filtedStatus.indexOf(k) === -1) {
-            delete problemData.statistic_info[k]
-          }
-        }
-        let acNum = problemData.accepted_number
+        // for (let k in problemData.statistic_info) {
+        //   if (filtedStatus.indexOf(k) === -1) {
+        //     delete problemData.statistic_info[k]
+        //   }
+        // }
+        let acNum = problemData.solvedNum
         let data = [
-          {name: 'WA', value: problemData.submission_number - acNum},
+          {name: 'WA', value: problemData.submitNum - acNum},
           {name: 'AC', value: acNum}
         ]
         this.pie.series[0].data = data
@@ -326,20 +336,18 @@
         this.largePie.series[1].data = data2
 
         // 根据结果设置legend,没有提交过的legend不显示
-        let legend = Object.keys(problemData.statistic_info).map(ele => JUDGE_STATUS[ele].short)
-        if (legend.length === 0) {
-          legend.push('AC', 'WA')
-        }
-        this.largePie.legend.data = legend
+        // let legend = Object.keys(problemData.statistic_info).map(ele => JUDGE_STATUS[ele].short)
+        // if (legend.length === 0) {
+        //   legend.push('AC', 'WA')
+        // }
+        // this.largePie.legend.data = legend
 
         // 把ac的数据提取出来放在最后
-        let acCount = problemData.statistic_info['0']
-        delete problemData.statistic_info['0']
-
+        let acCount = problemData.solvedNum
         let largePieData = []
-        Object.keys(problemData.statistic_info).forEach(ele => {
-          largePieData.push({name: JUDGE_STATUS[ele].short, value: problemData.statistic_info[ele]})
-        })
+        // Object.keys(problemData.statistic_info).forEach(ele => {
+        //   largePieData.push({name: JUDGE_STATUS[ele].short, value: problemData.statistic_info[ele]})
+        // })
         largePieData.push({name: 'AC', value: acCount})
         this.largePie.series[0].data = largePieData
       },
@@ -404,10 +412,12 @@
         this.result = {result: 9}
         this.submitting = true
         let data = {
-          problem_id: this.problem.id,
+          // @TODO : remember to reset the value
+          userId: 1,
+          problemId: this.problem.pid,
           language: this.language,
           code: this.code,
-          contest_id: this.contestID
+          contestId: this.contestID
         }
         if (this.captchaRequired) {
           data.captcha = this.captchaCode

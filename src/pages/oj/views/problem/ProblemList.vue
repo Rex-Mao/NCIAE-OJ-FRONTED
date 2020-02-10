@@ -5,7 +5,7 @@
       <div slot="title">{{$t('m.Problem_List')}}</div>
       <div slot="extra">
         <ul class="filter">
-          <li>
+          <!-- <li>
             <Dropdown @on-click="filterByDifficulty">
               <span>{{query.difficulty === '' ? this.$i18n.t('m.Difficulty') : this.$i18n.t('m.' + query.difficulty)}}
                 <Icon type="arrow-down-b"></Icon>
@@ -17,7 +17,7 @@
                 <Dropdown-item name="High">{{$t('m.High')}}</Dropdown-item>
               </Dropdown-menu>
             </Dropdown>
-          </li>
+          </li> -->
           <li>
             <i-switch size="large" @on-change="handleTagsVisible">
               <span slot="open">{{$t('m.Tags')}}</span>
@@ -53,12 +53,12 @@
     <Panel :padding="10">
       <div slot="title" class="taglist-title">{{$t('m.Tags')}}</div>
       <Button v-for="tag in tagList"
-              :key="tag.name"
-              @click="filterByTag(tag.name)"
+              :key="tag.tname"
+              @click="filterByTag(tag.tname)"
               type="ghost"
-              :disabled="query.tag === tag.name"
+              :disabled="query.tag === tag.tname"
               shape="circle"
-              class="tag-btn">{{tag.name}}
+              class="tag-btn">{{tag.tname}}
       </Button>
 
       <Button long id="pick-one" @click="pickone">
@@ -90,7 +90,7 @@
         problemTableColumns: [
           {
             title: '#',
-            key: '_id',
+            key: 'pid',
             width: 80,
             render: (h, params) => {
               return h('Button', {
@@ -100,13 +100,13 @@
                 },
                 on: {
                   click: () => {
-                    this.$router.push({name: 'problem-details', params: {problemID: params.row._id}})
+                    this.$router.push({name: 'problem-details', params: {problemID: params.row.pid}})
                   }
                 },
                 style: {
                   padding: '2px 0'
                 }
-              }, params.row._id)
+              }, params.row.pid)
             }
           },
           {
@@ -120,7 +120,7 @@
                 },
                 on: {
                   click: () => {
-                    this.$router.push({name: 'problem-details', params: {problemID: params.row._id}})
+                    this.$router.push({name: 'problem-details', params: {problemID: params.row.pid}})
                   }
                 },
                 style: {
@@ -132,28 +132,28 @@
               }, params.row.title)
             }
           },
-          {
-            title: this.$i18n.t('m.Level'),
-            render: (h, params) => {
-              let t = params.row.difficulty
-              let color = 'blue'
-              if (t === 'Low') color = 'green'
-              else if (t === 'High') color = 'yellow'
-              return h('Tag', {
-                props: {
-                  color: color
-                }
-              }, this.$i18n.t('m.' + params.row.difficulty))
-            }
-          },
+          // {
+          //   title: this.$i18n.t('m.Level'),
+          //   render: (h, params) => {
+          //     let t = params.row.difficulty
+          //     let color = 'blue'
+          //     if (t === 'Low') color = 'green'
+          //     else if (t === 'High') color = 'yellow'
+          //     return h('Tag', {
+          //       props: {
+          //         color: color
+          //       }
+          //     }, this.$i18n.t('m.' + params.row.difficulty))
+          //   }
+          // },
           {
             title: this.$i18n.t('m.Total'),
-            key: 'submission_number'
+            key: 'submitNum'
           },
           {
             title: this.$i18n.t('m.AC_Rate'),
             render: (h, params) => {
-              return h('span', this.getACRate(params.row.accepted_number, params.row.submission_number))
+              return h('span', this.getACRate(params.row.solvedNum, params.row.submitNum))
             }
           }
         ],
@@ -243,7 +243,7 @@
               render: (h, params) => {
                 let tags = []
                 params.row.tags.forEach(tag => {
-                  tags.push(h('Tag', {}, tag))
+                  tags.push(h('Tag', {}, tag.tname))
                 })
                 return h('div', {
                   style: {

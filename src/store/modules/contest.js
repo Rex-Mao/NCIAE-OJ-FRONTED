@@ -65,7 +65,9 @@ const getters = {
     } else if (getters.contestStatus === CONTEST_STATUS.NOT_START) {
       return !getters.isContestAdmin
     }
-    return !rootGetters.isAuthenticated
+    // @TODO remember reset the status
+    return false
+    // return !rootGetters.isAuthenticated
   },
   passwordFormVisible: (state, getters) => {
     return state.contest.contest_type !== CONTEST_TYPE.PUBLIC && !state.access && !getters.isContestAdmin

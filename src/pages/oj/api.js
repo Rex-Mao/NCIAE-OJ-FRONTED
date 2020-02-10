@@ -9,7 +9,7 @@ axios.defaults.xsrfCookieName = 'csrftoken'
 
 export default {
   getWebsiteConf (params) {
-    return ajax('website', 'get', {
+    return ajax('content-center/website', 'get', {
       params
     })
   },
@@ -112,7 +112,7 @@ export default {
     return ajax('languages', 'get')
   },
   getProblemTagList () {
-    return ajax('problem/tags', 'get')
+    return ajax('content-center/tags', 'get')
   },
   getProblemList (offset, limit, searchParams) {
     let params = {
@@ -125,7 +125,7 @@ export default {
         params[element] = searchParams[element]
       }
     })
-    return ajax('problem', 'get', {
+    return ajax('content-center/problem', 'get', {
       params: params
     })
   },
@@ -133,11 +133,8 @@ export default {
     return ajax('pickone', 'get')
   },
   getProblem (problemID) {
-    return ajax('problem', 'get', {
-      params: {
-        problem_id: problemID
-      }
-    })
+    var url = 'content-center/problem/' + String(problemID)
+    return ajax(url, 'get')
   },
   getContestList (offset, limit, searchParams) {
     let params = {
@@ -200,7 +197,7 @@ export default {
     })
   },
   submitCode (data) {
-    return ajax('submission', 'post', {
+    return ajax('content-center/submission', 'post', {
       data
     })
   },
