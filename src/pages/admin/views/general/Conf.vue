@@ -65,7 +65,7 @@
             <el-col :span="12">
               <el-form-item :label="$t('m.Allow_Register')" label-width="200px">
                 <el-switch
-                  v-model="websiteConfig.allowRegister"
+                  v-model="websiteConfig.allowRegistry"
                   active-color="#13ce66"
                   inactive-color="#ff4949">
                 </el-switch>

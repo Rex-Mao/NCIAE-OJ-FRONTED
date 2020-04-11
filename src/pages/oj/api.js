@@ -1,11 +1,14 @@
 import Vue from 'vue'
 import store from '@/store'
 import axios from 'axios'
+import qs from 'qs'
+import storage from '@/utils/storage'
 
 Vue.prototype.$http = axios
+Vue.prototype.$qs = qs
 axios.defaults.baseURL = '/api'
-axios.defaults.xsrfHeaderName = 'X-CSRFToken'
-axios.defaults.xsrfCookieName = 'csrftoken'
+// axios.defaults.xsrfHeaderName = 'Authorization'
+// axios.defaults.xsrfCookieName = 'csrftoken'
 
 export default {
   getWebsiteConf (params) {
@@ -18,12 +21,12 @@ export default {
       offset: offset,
       limit: limit
     }
-    return ajax('announcement', 'get', {
+    return ajax('content-center/announcement', 'get', {
       params
     })
   },
   login (data) {
-    return ajax('login', 'post', {
+    return ajax('user-center/token/login', 'post', {
       data
     })
   },
@@ -42,20 +45,16 @@ export default {
     })
   },
   logout () {
-    return ajax('logout', 'get')
+    // return ajax('logout', 'get')
   },
   getCaptcha () {
     return ajax('captcha', 'get')
   },
-  getUserInfo (username = undefined) {
-    return ajax('profile', 'get', {
-      params: {
-        username
-      }
-    })
+  getUserInfo () {
+    return ajax('user-center/profile', 'get')
   },
   updateProfile (profile) {
-    return ajax('profile', 'put', {
+    return ajax('user-center/profile', 'put', {
       data: profile
     })
   },
@@ -78,16 +77,6 @@ export default {
       }
     })
   },
-  getSessions () {
-    return ajax('sessions', 'get')
-  },
-  deleteSession (sessionKey) {
-    return ajax('sessions', 'delete', {
-      params: {
-        session_key: sessionKey
-      }
-    })
-  },
   applyResetPassword (data) {
     return ajax('apply_reset_password', 'post', {
       data
@@ -99,17 +88,17 @@ export default {
     })
   },
   changePassword (data) {
-    return ajax('change_password', 'post', {
+    return ajax('user-center/profile/password', 'put', {
       data
     })
   },
   changeEmail (data) {
-    return ajax('change_email', 'post', {
+    return ajax('user-center/profile/email', 'put', {
       data
     })
   },
   getLanguages () {
-    return ajax('languages', 'get')
+    return ajax('content-center/languages', 'get')
   },
   getProblemTagList () {
     return ajax('content-center/tags', 'get')
@@ -125,7 +114,7 @@ export default {
         params[element] = searchParams[element]
       }
     })
-    return ajax('content-center/problem', 'get', {
+    return ajax('content-center/problems', 'get', {
       params: params
     })
   },
@@ -204,26 +193,26 @@ export default {
   getSubmissionList (offset, limit, params) {
     params.limit = limit
     params.offset = offset
-    return ajax('submissions', 'get', {
+    return ajax('content-center/submissions', 'get', {
       params
     })
   },
   getContestSubmissionList (offset, limit, params) {
     params.limit = limit
     params.offset = offset
-    return ajax('contest_submissions', 'get', {
+    return ajax('content-center/contest_submissions', 'get', {
       params
     })
   },
-  getSubmission (id) {
-    return ajax('submission', 'get', {
+  getSubmission (submissionId) {
+    return ajax('content-center/submission', 'get', {
       params: {
-        id
+        submissionId
       }
     })
   },
   submissionExists (problemID) {
-    return ajax('submission_exists', 'get', {
+    return ajax('content-center/submission_exists', 'get', {
       params: {
         problem_id: problemID
       }
@@ -237,9 +226,12 @@ export default {
     })
   },
   updateSubmission (data) {
-    return ajax('submission', 'put', {
+    return ajax('content-center/submission', 'put', {
       data
     })
+  },
+  getSolvedProblems () {
+    return ajax('content-center/problems/solved', 'get')
   },
   getUserRank (offset, limit, rule = 'acm') {
     let params = {
@@ -281,10 +273,18 @@ function ajax (url, method, options) {
   } else {
     params = data = {}
   }
+  data = qs.stringify(data)
+  let jwt = storage.get('JWT')
+  if (jwt !== null || jwt !== undefined) {
+    var headers = {
+      Authorization: 'Bearer ' + jwt
+    }
+  }
   return new Promise((resolve, reject) => {
     axios({
       url,
       method,
+      headers,
       params,
       data
     }).then(res => {
@@ -292,15 +292,11 @@ function ajax (url, method, options) {
       if (res.data.error !== null) {
         Vue.prototype.$error(res.data.data)
         reject(res)
-        // 若后端返回为登录，则为session失效，应退出当前登录用户
-        if (res.data.data.startsWith('Please login')) {
+        if (res.data.data.startsWith('Please Login')) {
           store.dispatch('changeModalStatus', {'mode': 'login', 'visible': true})
         }
       } else {
         resolve(res)
-        // if (method !== 'get') {
-        //   Vue.prototype.$success('Succeeded')
-        // }
       }
     }, res => {
       // API请求异常，一般为Server error 或 network error

@@ -17,14 +17,14 @@
         style="width: 100%">
         <el-table-column
           width="100"
-          prop="id"
+          prop="pid"
           label="ID">
         </el-table-column>
         <el-table-column
           width="150"
           label="Display ID">
           <template slot-scope="{row}">
-            <span v-show="!row.isEditing">{{row._id}}</span>
+            <span v-show="!row.isEditing">{{row.pid}}</span>
             <el-input v-show="row.isEditing" v-model="row._id"
                       @keyup.enter.native="handleInlineEdit(row)">
 
@@ -42,10 +42,10 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="created_by.username"
+          prop="author"
           label="Author">
         </el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           width="200"
           prop="create_time"
           label="Create Time">
@@ -64,19 +64,19 @@
                        @change="updateProblem(scope.row)">
             </el-switch>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column
           fixed="right"
           label="Operation"
           width="250">
           <div slot-scope="scope">
-            <icon-btn name="Edit" icon="edit" @click.native="goEdit(scope.row.id)"></icon-btn>
+            <icon-btn name="Edit" icon="edit" @click.native="goEdit(scope.row.pid)"></icon-btn>
             <icon-btn v-if="contestId" name="Make Public" icon="clone"
-                      @click.native="makeContestProblemPublic(scope.row.id)"></icon-btn>
+                      @click.native="makeContestProblemPublic(scope.row.pid)"></icon-btn>
             <icon-btn icon="download" name="Download TestCase"
-                      @click.native="downloadTestCase(scope.row.id)"></icon-btn>
+                      @click.native="downloadTestCase(scope.row.pid)"></icon-btn>
             <icon-btn icon="trash" name="Delete Problem"
-                      @click.native="deleteProblem(scope.row.id)"></icon-btn>
+                      @click.native="deleteProblem(scope.row.pid)"></icon-btn>
           </div>
         </el-table-column>
       </el-table>
@@ -159,7 +159,7 @@
       },
       goEdit (problemId) {
         if (this.routeName === 'problem-list') {
-          this.$router.push({name: 'edit-problem', params: {problemId}})
+          this.$router.push({name: 'edit-problem', params: {problemId: problemId}})
         } else if (this.routeName === 'contest-problem-list') {
           this.$router.push({name: 'edit-contest-problem', params: {problemId: problemId, contestId: this.contestId}})
         }

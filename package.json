@@ -5,7 +5,7 @@
   "author": "zemal <rawidn@163.com>",
   "private": true,
   "scripts": {
-    "dev": "node build/dev-server.js",
+    "dev": "node build/dev-server.js --max_old_space_size=600 --max_semi_space_size=8",
     "start": "npm run dev",
     "build": "node build/build.js",
     "build:dll": "webpack --config=build/webpack.dll.conf.js",
@@ -23,6 +23,7 @@
     "katex": "^0.10.2",
     "moment": "^2.24.0",
     "papaparse": "^4.6.3",
+    "qs": "^6.9.1",
     "raven-js": "^3.27.2",
     "screenfull": "^3.3.2",
     "tar-simditor": "^3.0.5",

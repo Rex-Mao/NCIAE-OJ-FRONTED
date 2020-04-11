@@ -392,7 +392,7 @@
       selectedUserIDs () {
         let ids = []
         for (let user of this.selectedUsers) {
-          ids.push(user.id)
+          ids.push(user.uid)
         }
         return ids
       }

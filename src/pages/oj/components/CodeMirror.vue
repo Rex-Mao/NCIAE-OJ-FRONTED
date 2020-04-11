@@ -113,7 +113,7 @@
       utils.getLanguages().then(languages => {
         let mode = {}
         languages.forEach(lang => {
-          mode[lang.name] = lang.content_type
+          mode[lang.languageName] = lang.languageSlug
         })
         this.mode = mode
         this.editor.setOption('mode', this.mode[this.language])

@@ -25,7 +25,7 @@
         :loading="btnLoginLoading">
         {{$t('m.UserLogin')}}
       </Button>
-      <a v-if="website.allow_register" @click.stop="handleBtnClick('register')">{{$t('m.No_Account')}}</a>
+      <a v-if="website.allowRegistry" @click.stop="handleBtnClick('register')">{{$t('m.No_Account')}}</a>
       <a @click.stop="goResetPassword" style="float: right">{{$t('m.Forget_Password')}}</a>
     </div>
   </div>
@@ -34,19 +34,20 @@
 <script>
   import { mapGetters, mapActions } from 'vuex'
   import api from '@oj/api'
+  import storage from '@/utils/storage'
   import { FormMixin } from '@oj/components/mixins'
 
   export default {
     mixins: [FormMixin],
     data () {
-      const CheckRequiredTFA = (rule, value, callback) => {
-        if (value !== '') {
-          api.tfaRequiredCheck(value).then(res => {
-            this.tfaRequired = res.data.data.result
-          })
-        }
-        callback()
-      }
+      // const CheckRequiredTFA = (rule, value, callback) => {
+      //   if (value !== '') {
+      //     api.tfaRequiredCheck(value).then(res => {
+      //       this.tfaRequired = res.data.data.result
+      //     })
+      //   }
+      //   callback()
+      // }
 
       return {
         tfaRequired: false,
@@ -58,8 +59,8 @@
         },
         ruleLogin: {
           username: [
-            {required: true, trigger: 'blur'},
-            {validator: CheckRequiredTFA, trigger: 'blur'}
+            {required: true, trigger: 'blur'}
+            // {validator: CheckRequiredTFA, trigger: 'blur'}
           ],
           password: [
             {required: true, trigger: 'change', min: 6, max: 20}
@@ -83,6 +84,7 @@
             delete formData['tfa_code']
           }
           api.login(formData).then(res => {
+            storage.set('JWT', res.data.data)
             this.btnLoginLoading = false
             this.changeModalStatus({visible: false})
             this.getProfile()

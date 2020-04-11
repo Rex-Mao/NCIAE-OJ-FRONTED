@@ -42,12 +42,15 @@
         this.$refs.ruleForm2.validate((valid) => {
           if (valid) {
             this.logining = true
+            // @TODO reject the login when develop
             api.login(this.ruleForm2.account, this.ruleForm2.password).then(data => {
               this.logining = false
               this.$router.push({name: 'dashboard'})
             }, () => {
               this.logining = false
             })
+            this.logining = false
+            this.$router.push({name: 'dashboard'})
           } else {
             this.$error('Please check the error fields')
           }

@@ -10,29 +10,29 @@
           style="width: 100%">
           <el-table-column
             width="100"
-            prop="id"
+            prop="nid"
             label="ID">
           </el-table-column>
           <el-table-column
-            prop="title"
+            prop="noticeTitle"
             label="Title">
           </el-table-column>
           <el-table-column
-            prop="create_time"
+            prop="createTime"
             label="CreateTime">
             <template slot-scope="scope">
-              {{ scope.row.create_time | localtime }}
+              {{ scope.row.createTime | localtime }}
             </template>
           </el-table-column>
           <el-table-column
-            prop="last_update_time"
+            prop="lastUpdateTime"
             label="LastUpdateTime">
             <template slot-scope="scope">
-              {{scope.row.last_update_time | localtime }}
+              {{scope.row.lastUpdateTime | localtime }}
             </template>
           </el-table-column>
           <el-table-column
-            prop="created_by.username"
+            prop="nickname"
             label="Author">
           </el-table-column>
           <el-table-column
@@ -52,8 +52,8 @@
             label="Option"
             width="200">
             <div slot-scope="scope">
-              <icon-btn name="Edit" icon="edit" @click.native="openAnnouncementDialog(scope.row.id)"></icon-btn>
-              <icon-btn name="Delete" icon="trash" @click.native="deleteAnnouncement(scope.row.id)"></icon-btn>
+              <icon-btn name="Edit" icon="edit" @click.native="openAnnouncementDialog(scope.row.nid)"></icon-btn>
+              <icon-btn name="Delete" icon="trash" @click.native="deleteAnnouncement(scope.row.nid)"></icon-btn>
             </div>
           </el-table-column>
         </el-table>
@@ -93,7 +93,7 @@
         </div>
       </el-form>
       <span slot="footer" class="dialog-footer">
-          <cancel @click.native="showEditAnnouncementDialog = false"></cancel>
+          <cancel @click.native="cancelDialog"></cancel>
           <save type="primary" @click.native="submitAnnouncement"></save>
         </span>
     </el-dialog>
@@ -160,6 +160,9 @@
           this.loading = false
           this.total = res.data.data.total
           this.announcementList = res.data.data.results
+          for (let announcement of this.announcementList) {
+            announcement.visible = announcement.visible === 1
+          }
         }, res => {
           this.loading = false
         })
@@ -187,16 +190,21 @@
           }
         }, 0)
       },
+      cancelDialog () {
+        this.currentAnnouncementId = null
+        this.showEditAnnouncementDialog = false
+      },
       // 提交编辑
       // 默认传入MouseEvent
       submitAnnouncement (data = undefined) {
         let funcName = ''
-        if (!data.title) {
+        if (!data.noticeTitle) {
           data = {
-            id: this.currentAnnouncementId,
-            title: this.announcement.title,
-            content: this.announcement.content,
-            visible: this.announcement.visible
+            nid: this.currentAnnouncementId,
+            nickname: 'RexALun',
+            noticeTitle: this.announcement.title,
+            noticeContent: this.announcement.content,
+            visible: this.announcement.visible === true ? 1 : 0
           }
         }
         if (this.contestID) {
@@ -235,10 +243,10 @@
           this.currentAnnouncementId = id
           this.announcementDialogTitle = 'Edit Announcement'
           this.announcementList.find(item => {
-            if (item.id === this.currentAnnouncementId) {
-              this.announcement.title = item.title
+            if (item.nid === this.currentAnnouncementId) {
+              this.announcement.title = item.noticeTitle
               this.announcement.visible = item.visible
-              this.announcement.content = item.content
+              this.announcement.content = item.noticeContent
               this.mode = 'edit'
             }
           })
@@ -252,11 +260,13 @@
       },
       handleVisibleSwitch (row) {
         this.mode = 'edit'
+        console.log(row)
         this.submitAnnouncement({
-          id: row.id,
-          title: row.title,
-          content: row.content,
-          visible: row.visible
+          nid: row.nid,
+          nickname: row.nickname,
+          noticeTitle: row.noticeTitle,
+          noticeContent: row.noticeContent,
+          visible: row.visible === true ? 1 : 0
         })
       }
     },

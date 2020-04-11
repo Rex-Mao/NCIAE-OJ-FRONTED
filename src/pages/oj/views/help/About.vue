@@ -4,8 +4,8 @@
       <div slot="title">{{$t('m.Compiler')}} & {{$t('m.Judger')}}</div>
       <div class="content markdown-body">
         <ul>
-          <li v-for="lang in languages">{{lang.name}} ( {{lang.description}} )
-            <pre>{{lang.config.compile.compile_command}}</pre>
+          <li v-for="lang in languages" v-bind:key="lang">{{lang.languageName}} ( {{lang.languageDescription}} )
+            <pre>{{lang.languageCompileCommand}}</pre>
           </li>
         </ul>
       </div>

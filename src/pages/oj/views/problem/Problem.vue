@@ -10,10 +10,10 @@
           <!-- {{$t('m.music')}} -->
           <!-- <span v-if="problem.io_mode.io_mode=='File IO'">({{$t('m.FromFile')}}: {{ problem.io_mode.input }})</span> -->
           <p class="title">{{$t('m.Input')}} </p>
-          <p class="content" v-html=problem.finput></p>
+          <p class="content" v-html=problem.fInput></p>
           <!-- <span v-if="problem.io_mode.io_mode=='File IO'">({{$t('m.ToFile')}}: {{ problem.io_mode.output }})</span> -->
           <p class="title">{{$t('m.Output')}} </p>
-          <p class="content" v-html=problem.foutput></p>
+          <p class="content" v-html=problem.fOutput></p>
 
           <div v-for="(sample, index) of problem.samples" :key="index">
             <div class="flex-container sample">
@@ -148,7 +148,7 @@
             <p>{{problem.timeLimit}}MS</p></li>
           <li>
             <p>{{$t('m.Memory_Limit')}}</p>
-            <p>{{problem.memoryLimit}}MB</p></li>
+            <p>{{problem.memoryLimit}}KB</p></li>
           <li>
           <!-- <li>
             <p>{{$t('m.IOMode')}}</p>
@@ -170,7 +170,7 @@
               <Poptip trigger="hover" placement="left-end">
                 <a>{{$t('m.Show')}}</a>
                 <div slot="content">
-                  <Tag v-for="tag in problem.tags" :key="tag">{{tag.tname}}</Tag>
+                  <Tag v-for="tag in problem.tags" :key="tag.tid">{{tag.tname}}</Tag>
                 </div>
               </Poptip>
             </p>
@@ -298,10 +298,10 @@
           // api.submissionExists(problem.id).then(res => {
           //   this.submissionExists = res.data.data
           // })
-          problem.languages = ['C', 'C++', 'Java']
           problem.languages = problem.languages.sort()
           this.problem = problem
           this.changePie(problem)
+          // this.problem.template = {}
 
           // 在beforeRouteEnter中修改了, 说明本地有code，无需加载template
           // if (this.code !== '') {
@@ -355,11 +355,11 @@
         this.$router.push(route)
       },
       onChangeLang (newLang) {
-        if (this.problem.template[newLang]) {
-          if (this.code.trim() === '') {
-            this.code = this.problem.template[newLang]
-          }
-        }
+        // if (this.problem.template[newLang]) {
+        //   if (this.code.trim() === '') {
+        //     this.code = this.problem.template[newLang]
+        //   }
+        // }
         this.language = newLang
       },
       onChangeTheme (newTheme) {
@@ -387,8 +387,8 @@
         const checkStatus = () => {
           let id = this.submissionId
           api.getSubmission(id).then(res => {
-            this.result = res.data.data
-            if (Object.keys(res.data.data.statistic_info).length !== 0) {
+            this.result = {result: res.data.data.result}
+            if (res.data.result !== 9) {
               this.submitting = false
               this.submitted = false
               clearTimeout(this.refreshStatus)
@@ -414,8 +414,9 @@
         let data = {
           // @TODO : remember to reset the value
           userId: 1,
+          userNickname: 'RexALun',
           problemId: this.problem.pid,
-          language: this.language,
+          'language.languageName': this.language,
           code: this.code,
           contestId: this.contestID
         }
@@ -425,7 +426,7 @@
         const submitFunc = (data, detailsVisible) => {
           this.statusVisible = true
           api.submitCode(data).then(res => {
-            this.submissionId = res.data.data && res.data.data.submission_id
+            this.submissionId = res.data.data
             // 定时检查状态
             this.submitting = false
             this.submissionExists = true
@@ -447,28 +448,7 @@
             this.statusVisible = false
           })
         }
-
-        if (this.contestRuleType === 'OI' && !this.OIContestRealTimePermission) {
-          if (this.submissionExists) {
-            this.$Modal.confirm({
-              title: '',
-              content: '<h3>' + this.$i18n.t('m.You_have_submission_in_this_problem_sure_to_cover_it') + '<h3>',
-              onOk: () => {
-                // 暂时解决对话框与后面提示对话框冲突的问题(否则一闪而过）
-                setTimeout(() => {
-                  submitFunc(data, false)
-                }, 1000)
-              },
-              onCancel: () => {
-                this.submitting = false
-              }
-            })
-          } else {
-            submitFunc(data, false)
-          }
-        } else {
-          submitFunc(data, true)
-        }
+        submitFunc(data, true)
       },
       onCopy (event) {
         this.$success('Code copied')

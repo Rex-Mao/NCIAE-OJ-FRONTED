@@ -47,6 +47,7 @@
   import api from '@oj/api'
   import { JUDGE_STATUS, USER_TYPE } from '@/utils/constants'
   import utils from '@/utils/utils'
+  import storage from '@/utils/storage'
   import time from '@/utils/time'
   import Pagination from '@/pages/oj/components/Pagination'
 
@@ -67,7 +68,7 @@
             title: this.$i18n.t('m.When'),
             align: 'center',
             render: (h, params) => {
-              return h('span', time.utcToLocal(params.row.create_time))
+              return h('span', time.utcToLocal(params.row.commitTime))
             }
           },
           {
@@ -82,12 +83,12 @@
                   },
                   on: {
                     click: () => {
-                      this.$router.push('/status/' + params.row.id)
+                      this.$router.push('/status/' + params.row.recordId)
                     }
                   }
-                }, params.row.id.slice(0, 12))
+                }, params.row.recordId)
               } else {
-                return h('span', params.row.id.slice(0, 12))
+                return h('span', params.row.recordId)
               }
             }
           },
@@ -97,9 +98,9 @@
             render: (h, params) => {
               return h('Tag', {
                 props: {
-                  color: JUDGE_STATUS[params.row.result].color
+                  color: JUDGE_STATUS[params.row.status].color
                 }
-              }, this.$i18n.t('m.' + JUDGE_STATUS[params.row.result].name.replace(/ /g, '_')))
+              }, this.$i18n.t('m.' + JUDGE_STATUS[params.row.status].name.replace(/ /g, '_')))
             }
           },
           {
@@ -118,35 +119,38 @@
                         this.$router.push(
                           {
                             name: 'contest-problem-details',
-                            params: {problemID: params.row.problem, contestID: this.contestID}
+                            params: {problemID: params.row.pid, contestID: this.contestID}
                           })
                       } else {
-                        this.$router.push({name: 'problem-details', params: {problemID: params.row.problem}})
+                        this.$router.push({name: 'problem-details', params: {problemID: params.row.pid}})
                       }
                     }
                   }
                 },
-                params.row.problem)
+                params.row.pid)
             }
           },
           {
             title: this.$i18n.t('m.Time'),
             align: 'center',
             render: (h, params) => {
-              return h('span', utils.submissionTimeFormat(params.row.statistic_info.time_cost))
+              return h('span', utils.submissionTimeFormat(params.row.usedTime))
             }
           },
           {
             title: this.$i18n.t('m.Memory'),
             align: 'center',
             render: (h, params) => {
-              return h('span', utils.submissionMemoryFormat(params.row.statistic_info.memory_cost))
+              return h('span', utils.submissionMemoryFormat(params.row.usedMemory))
             }
           },
           {
             title: this.$i18n.t('m.Language'),
             align: 'center',
-            key: 'language'
+            render: (h, params) => {
+              return h('span', storage.get('languages')[params.row.languageId - 1].languageName)
+            }
+            // key: 'language'
           },
           {
             title: this.$i18n.t('m.Author'),
@@ -162,11 +166,11 @@
                     this.$router.push(
                       {
                         name: 'user-home',
-                        query: {username: params.row.username}
+                        query: {username: params.row.commitNickname}
                       })
                   }
                 }
-              }, params.row.username)
+              }, params.row.commitNickname)
             }
           }
         ],

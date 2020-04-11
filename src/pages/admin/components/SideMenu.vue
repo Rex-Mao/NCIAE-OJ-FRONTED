@@ -35,6 +35,7 @@
     name: 'SideMenu',
     data () {
       return {
+        isSuperAdmin: true,
         currentPath: ''
       }
     },
@@ -42,7 +43,9 @@
       this.currentPath = this.$route.path
     },
     computed: {
-      ...mapGetters(['user', 'isSuperAdmin', 'hasProblemPermission'])
+      // @TODO : change it back when you get the authority done
+      ...mapGetters(['user', 'hasProblemPermission'])
+      // ...mapGetters(['user', 'isSuperAdmin', 'hasProblemPermission'])
     }
   }
 </script>

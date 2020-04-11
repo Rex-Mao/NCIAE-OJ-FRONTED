@@ -18,18 +18,10 @@
         <Icon type="ios-pulse-strong"></Icon>
         {{$t('m.NavStatus')}}
       </Menu-item>
-      <Submenu name="rank">
-        <template slot="title">
+      <Menu-item name="/acm-rank">
           <Icon type="podium"></Icon>
           {{$t('m.Rank')}}
-        </template>
-        <Menu-item name="/acm-rank">
-          {{$t('m.ACM_Rank')}}
-        </Menu-item>
-        <Menu-item name="/oi-rank">
-          {{$t('m.OI_Rank')}}
-        </Menu-item>
-      </Submenu>
+      </Menu-item>
       <Submenu name="about">
         <template slot="title">
           <Icon type="information-circled"></Icon>
@@ -49,7 +41,7 @@
                   shape="circle"
                   @click="handleBtnClick('login')">{{$t('m.Login')}}
           </Button>
-          <Button v-if="website.allow_register"
+          <Button v-if="website.allowRegistry"
                   type="ghost"
                   shape="circle"
                   @click="handleBtnClick('register')"
@@ -59,7 +51,7 @@
       </template>
       <template v-else>
         <Dropdown class="drop-menu" @on-click="handleRoute" placement="bottom" trigger="click">
-          <Button type="text" class="drop-menu-title">{{ user.username }}
+          <Button type="text" class="drop-menu-title">{{ user.nickname }}
             <Icon type="arrow-down-b"></Icon>
           </Button>
           <Dropdown-menu slot="list">

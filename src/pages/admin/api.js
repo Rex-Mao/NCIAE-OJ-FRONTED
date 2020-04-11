@@ -1,17 +1,17 @@
 import Vue from 'vue'
 import router from './router'
 import axios from 'axios'
+import qs from 'qs'
 import utils from '@/utils/utils'
+import storage from '@/utils/storage'
 
 Vue.prototype.$http = axios
 axios.defaults.baseURL = '/api'
-axios.defaults.xsrfHeaderName = 'X-CSRFToken'
-axios.defaults.xsrfCookieName = 'csrftoken'
 
 export default {
   // 登录
   login (username, password) {
-    return ajax('login', 'post', {
+    return ajax('/user-center/token/login', 'post', {
       data: {
         username,
         password
@@ -22,11 +22,11 @@ export default {
     return ajax('logout', 'get')
   },
   getProfile () {
-    return ajax('profile', 'get')
+    return ajax('/user-center/profile', 'get')
   },
   // 获取公告列表
   getAnnouncementList (offset, limit) {
-    return ajax('admin/announcement', 'get', {
+    return ajax('/content-center/admin/announcement', 'get', {
       params: {
         paging: true,
         offset,
@@ -36,21 +36,18 @@ export default {
   },
   // 删除公告
   deleteAnnouncement (id) {
-    return ajax('admin/announcement', 'delete', {
-      params: {
-        id
-      }
-    })
+    var url = 'content-center/admin/announcement/' + String(id)
+    return ajax(url, 'delete')
   },
   // 修改公告
   updateAnnouncement (data) {
-    return ajax('admin/announcement', 'put', {
+    return ajax('content-center/admin/announcement', 'put', {
       data
     })
   },
   // 添加公告
   createAnnouncement (data) {
-    return ajax('admin/announcement', 'post', {
+    return ajax('content-center/admin/announcement', 'post', {
       data
     })
   },
@@ -98,7 +95,7 @@ export default {
     })
   },
   getLanguages () {
-    return ajax('languages', 'get')
+    return ajax('content-center/languages', 'get')
   },
   getSMTPConfig () {
     return ajax('admin/smtp', 'get')
@@ -204,51 +201,48 @@ export default {
     })
   },
   getProblemTagList () {
-    return ajax('problem/tags', 'get')
+    return ajax('content-center/problem/tags', 'get')
   },
   compileSPJ (data) {
-    return ajax('admin/compile_spj', 'post', {
+    return ajax('content-center/admin/compile_spj', 'post', {
       data
     })
   },
   createProblem (data) {
-    return ajax('admin/problem', 'post', {
+    return ajax('content-center/admin/problem', 'post', {
       data
     })
   },
   editProblem (data) {
-    return ajax('admin/problem', 'put', {
+    return ajax('content-center/admin/problem', 'put', {
       data
     })
   },
-  deleteProblem (id) {
-    return ajax('admin/problem', 'delete', {
+  deleteProblem (pid) {
+    return ajax('content-center/admin/problem', 'delete', {
       params: {
-        id
+        pid
       }
     })
   },
-  getProblem (id) {
-    return ajax('admin/problem', 'get', {
-      params: {
-        id
-      }
-    })
+  getProblem (problemID) {
+    var url = 'content-center/admin/problem/' + String(problemID)
+    return ajax(url, 'get')
   },
   getProblemList (params) {
     params = utils.filterEmptyValue(params)
-    return ajax('admin/problem', 'get', {
+    return ajax('content-center/admin/problems', 'get', {
       params
     })
   },
   getContestProblemList (params) {
     params = utils.filterEmptyValue(params)
-    return ajax('admin/contest/problem', 'get', {
+    return ajax('content-center/admin/contest/problems', 'get', {
       params
     })
   },
   getContestProblem (id) {
-    return ajax('admin/contest/problem', 'get', {
+    return ajax('content-center/admin/contest/problem', 'get', {
       params: {
         id
       }
@@ -281,19 +275,16 @@ export default {
       data
     })
   },
+  exportSelectedProblems (data) {
+    return ajax('/admin/export/problems', 'post', {
+      data
+    })
+  },
   getReleaseNotes () {
     return ajax('admin/versions', 'get')
   },
   getDashboardInfo () {
     return ajax('admin/dashboard_info', 'get')
-  },
-  getSessions () {
-    return ajax('sessions', 'get')
-  },
-  exportProblems (data) {
-    return ajax('export_problem', 'post', {
-      data
-    })
   }
 }
 
@@ -310,10 +301,18 @@ function ajax (url, method, options) {
   } else {
     params = data = {}
   }
+  data = qs.stringify(data)
+  let jwt = storage.get('JWT')
+  if (jwt !== null || jwt !== undefined) {
+    var headers = {
+      Authorization: 'Bearer ' + jwt
+    }
+  }
   return new Promise((resolve, reject) => {
     axios({
       url,
       method,
+      headers,
       params,
       data
     }).then(res => {
@@ -321,7 +320,9 @@ function ajax (url, method, options) {
       if (res.data.error !== null) {
         Vue.prototype.$error(res.data.data)
         reject(res)
-        // // 若后端返回为登录，则为session失效，应退出当前登录用户
+        if (res.data.error.startsWith('40')) {
+          router.push({name: 'login'})
+        }
         if (res.data.data.startsWith('Please login')) {
           router.push({name: 'login'})
         }

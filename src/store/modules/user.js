@@ -12,7 +12,7 @@ const getters = {
   user: state => state.profile.user || {},
   profile: state => state.profile,
   isAuthenticated: (state, getters) => {
-    return !!getters.user.id
+    return !!getters.user.uid
   },
   isAdminRole: (state, getters) => {
     return getters.user.admin_type === USER_TYPE.ADMIN ||
@@ -29,10 +29,10 @@ const getters = {
 const mutations = {
   [types.CHANGE_PROFILE] (state, {profile}) {
     state.profile = profile
-    if (profile.language) {
-      i18n.locale = profile.language
+    if (profile.user.language) {
+      i18n.locale = profile.user.language
     }
-    storage.set(STORAGE_KEY.AUTHED, !!profile.user)
+    storage.set(STORAGE_KEY.AUTHED, !!profile.user.nickname)
   }
 }
 

@@ -18,7 +18,11 @@ export default {
    * @return {Object}
    */
   get (key) {
-    return JSON.parse(localStorage.getItem(key)) || null
+    // return JSON.parse(localStorage.getItem(key)) || null
+    if (localStorage.getItem(key) === 'undefined') {
+      return null
+    }
+    return JSON.parse(localStorage.getItem(key))
   },
 
   /**

@@ -14,12 +14,12 @@
       </div>
       <template v-if="listVisible">
         <ul class="announcements-container" key="list">
-          <li v-for="announcement in announcements" :key="announcement.title">
+          <li v-for="announcement in announcements" :key="announcement.noticeTitle">
             <div class="flex-container">
               <div class="title"><a class="entry" @click="goAnnouncement(announcement)">
-                {{announcement.title}}</a></div>
-              <div class="date">{{announcement.create_time | localtime }}</div>
-              <div class="creator"> {{$t('m.By')}} {{announcement.created_by.username}}</div>
+                {{announcement.noticeTitle}}</a></div>
+              <div class="date">{{announcement.createTime | localtime }}</div>
+              <div class="creator"> {{$t('m.By')}} {{announcement.nickname}}</div>
             </div>
           </li>
         </ul>
@@ -32,7 +32,7 @@
       </template>
 
       <template v-else>
-        <div v-katex v-html="announcement.content" key="content" class="content-container markdown-body"></div>
+        <div v-katex v-html="announcement.noticeContent" key="content" class="content-container markdown-body"></div>
       </template>
     </transition-group>
   </Panel>

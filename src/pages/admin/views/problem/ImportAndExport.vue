@@ -16,31 +16,31 @@
           type="selection"
           width="60">
         </el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           label="ID"
           width="100"
-          prop="id">
-        </el-table-column>
+          prop="pid">
+        </el-table-column> -->
         <el-table-column
           label="DisplayID"
           width="200"
-          prop="_id">
+          prop="pid">
         </el-table-column>
         <el-table-column
           label="Title"
           prop="title">
         </el-table-column>
         <el-table-column
-          prop="created_by.username"
+          prop="author"
           label="Author">
         </el-table-column>
-        <el-table-column
-          prop="create_time"
+        <!-- <el-table-column
+          prop="createTime"
           label="Create Time">
           <template slot-scope="scope">
             {{scope.row.create_time | localtime }}
           </template>
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
 
       <div class="panel-options">
@@ -56,7 +56,25 @@
         </el-pagination>
       </div>
     </panel>
-    <panel title="Import QDUOJ Problems (beta)">
+    <panel title="Import FPS Problems (beta)">
+      <el-upload
+        ref="FPS"
+        action="/api/admin/import/fps"
+        name="file"
+        :file-list="fileList2"
+        :show-file-list="true"
+        :with-credentials="true"
+        :limit="3"
+        :on-change="onFile2Change"
+        :auto-upload="false"
+        :on-success="uploadSucceeded"
+        :on-error="uploadFailed">
+        <el-button size="small" type="primary" icon="el-icon-fa-upload" slot="trigger">Choose File</el-button>
+        <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload('FPS')">Upload</el-button>
+      </el-upload>
+    </panel>
+
+    <!-- <panel title="Import QDUOJ Problems (beta)">
       <el-upload
         ref="QDU"
         action="/api/admin/import_problem"
@@ -72,25 +90,7 @@
         <el-button size="small" type="primary" icon="el-icon-fa-upload" slot="trigger">Choose File</el-button>
         <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload('QDU')">Upload</el-button>
       </el-upload>
-    </panel>
-
-    <panel title="Import FPS Problems (beta)">
-      <el-upload
-        ref="FPS"
-        action="/api/admin/import_fps"
-        name="file"
-        :file-list="fileList2"
-        :show-file-list="true"
-        :with-credentials="true"
-        :limit="3"
-        :on-change="onFile2Change"
-        :auto-upload="false"
-        :on-success="uploadSucceeded"
-        :on-error="uploadFailed">
-        <el-button size="small" type="primary" icon="el-icon-fa-upload" slot="trigger">Choose File</el-button>
-        <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload('FPS')">Upload</el-button>
-      </el-upload>
-    </panel>
+    </panel> -->
   </div>
 </template>
 <script>
@@ -136,10 +136,13 @@
       exportProblems () {
         let params = []
         for (let p of this.selected_problems) {
-          params.push('problem_id=' + p.id)
+          params.push(p.pid)
         }
-        let url = '/admin/export_problem?' + params.join('&')
-        utils.downloadFile(url)
+        // let url = '/admin/export/problems?' + params.join('&')
+        api.exportSelectedProblems(params).then(res => {
+          console.log(res)
+        })
+        // utils.downloadFile(url)
       },
       submitUpload (ref) {
         this.$refs[ref].submit()

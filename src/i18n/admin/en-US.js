@@ -60,6 +60,7 @@ export const m = {
   // PruneTestCase
   Test_Case_Prune_Test_Case: 'Prune Test Case',
   // Problem.vue
+  Add_Problem: 'Add Problem',
   Display_ID: 'Display ID',
   Title: 'Title',
   Description: 'Description',
@@ -72,7 +73,10 @@ export const m = {
   Languages: 'Languages',
   Input_Samples: 'Input Samples',
   Output_Samples: 'Output Samples',
+  Input_Checkpoints: 'Input Checkpoints',
+  Output_Checkpoints: 'Output Checkpoints',
   Add_Sample: 'Add Sample',
+  Add_Checkpoint: 'Add Checkpoint',
   Code_Template: 'Code_Template',
   Special_Judge: 'Special Judge',
   Use_Special_Judge: 'Use Special Judge',

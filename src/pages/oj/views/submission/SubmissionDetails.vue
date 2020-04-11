@@ -8,8 +8,8 @@
             <pre>{{submission.statistic_info.err_info}}</pre>
           </template>
           <template v-else>
-            <span>{{$t('m.Time')}}: {{submission.statistic_info.time_cost | submissionTime}}</span>
-            <span>{{$t('m.Memory')}}: {{submission.statistic_info.memory_cost | submissionMemory}}</span>
+            <span>{{$t('m.Time')}}: {{submission.usedTime}}</span>
+            <span>{{$t('m.Memory')}}: {{submission.usedMemory}}</span>
             <span>{{$t('m.Lang')}}: {{submission.language}}</span>
             <span>{{$t('m.Author')}}: {{submission.username}}</span>
           </template>

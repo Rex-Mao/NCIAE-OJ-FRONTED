@@ -1,32 +1,32 @@
 <template>
   <div class="container">
     <div class="avatar-container">
-      <img class="avatar" :src="profile.avatar"/>
+      <img class="avatar" :src="profile.user.avatar"/>
     </div>
     <Card :padding="100">
       <div v-if="profile.user">
         <p style="margin-top: -10px">
-          <span v-if="profile.user" class="emphasis">{{profile.user.username}}</span>
-          <span v-if="profile.school">@{{profile.school}}</span>
+          <span v-if="profile.user" class="emphasis">{{profile.user.nickname}}</span>
+          <!-- <span v-if="profile.school">@{{profile.school}}</span> -->
         </p>
-        <p v-if="profile.mood">
-          {{profile.mood}}
+        <p v-if="profile.user.mood">
+          {{profile.user.mood}}
         </p>
         <hr id="split"/>
 
         <div class="flex-container">
           <div class="left">
             <p>{{$t('m.UserHomeSolved')}}</p>
-            <p class="emphasis">{{profile.accepted_number}}</p>
+            <p class="emphasis">{{profile.user.solvednum}}</p>
           </div>
-          <div class="middle">
+          <!-- <div class="middle">
             <p>{{$t('m.UserHomeserSubmissions')}}</p>
             <p class="emphasis">{{profile.submission_number}}</p>
-          </div>
-          <div class="right">
+          </div> -->
+          <!-- <div class="right">
             <p>{{$t('m.UserHomeScore')}}</p>
             <p class="emphasis">{{profile.total_score}}</p>
-          </div>
+          </div> -->
         </div>
         <div id="problems">
           <div v-if="problems.length">{{$t('m.List_Solved_Problems')}}
@@ -46,13 +46,13 @@
           </div>
         </div>
         <div id="icons">
-          <a :href="profile.github">
+          <a :href="profile.user.github">
             <Icon type="social-github-outline" size="30"></Icon>
           </a>
           <a :href="'mailto:'+ profile.user.email">
             <Icon class="icon" type="ios-email-outline" size="30"></Icon>
           </a>
-          <a :href="profile.blog">
+          <a :href="profile.user.blog">
             <Icon class="icon" type="ios-world-outline" size="30"></Icon>
           </a>
         </div>
@@ -80,28 +80,28 @@
       ...mapActions(['changeDomTitle']),
       init () {
         this.username = this.$route.query.username
-        api.getUserInfo(this.username).then(res => {
-          this.changeDomTitle({title: res.data.data.user.username})
+        api.getUserInfo().then(res => {
+          this.changeDomTitle({title: res.data.data.user.nickame})
           this.profile = res.data.data
           this.getSolvedProblems()
-          let registerTime = time.utcToLocal(this.profile.user.create_time, 'YYYY-MM-D')
+          let registerTime = time.utcToLocal(this.profile.user.regtime, 'YYYY-MM-D')
           console.log('The guy registered at ' + registerTime + '.')
         })
       },
       getSolvedProblems () {
-        let ACMProblems = this.profile.acm_problems_status.problems || {}
-        let OIProblems = this.profile.oi_problems_status.problems || {}
-        // todo oi problems
-        let ACProblems = []
-        for (let problems of [ACMProblems, OIProblems]) {
-          Object.keys(problems).forEach(problemID => {
-            if (problems[problemID]['status'] === 0) {
-              ACProblems.push(problems[problemID]['_id'])
-            }
-          })
-        }
-        ACProblems.sort()
-        this.problems = ACProblems
+        api.getSolvedProblems().then(res => {
+          let ACMProblems = res.data.data || {}
+          let ACProblems = []
+          for (let problems of ACMProblems) {
+            Object.keys(problems).forEach(problemID => {
+              if (problems[problemID]['status'] === 0) {
+                ACProblems.push(problems[problemID]['pid'])
+              }
+            })
+          }
+          ACProblems.sort()
+          this.problems = ACProblems
+        })
       },
       goProblem (problemID) {
         this.$router.push({name: 'problem-details', params: {problemID: problemID}})

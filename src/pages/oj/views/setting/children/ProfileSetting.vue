@@ -66,29 +66,29 @@
     <Form ref="formProfile" :model="formProfile">
       <Row type="flex" :gutter="30" justify="space-around">
         <Col :span="11">
-          <FormItem label="Real Name">
+          <!-- <FormItem label="Real Name">
             <Input v-model="formProfile.real_name"/>
-          </FormItem>
-          <Form-item label="School">
+          </FormItem> -->
+          <!-- <Form-item label="School">
             <Input v-model="formProfile.school"/>
-          </Form-item>
-          <Form-item label="Major">
+          </Form-item> -->
+          <!-- <Form-item label="Major">
             <Input v-model="formProfile.major"/>
-          </Form-item>
+          </Form-item> -->
           <FormItem label="Language">
             <Select v-model="formProfile.language">
               <Option v-for="lang in languages" :key="lang.value" :value="lang.value">{{lang.label}}</Option>
             </Select>
           </FormItem>
+          <Form-item label="Mood">
+            <Input v-model="formProfile.mood"/>
+          </Form-item>
           <Form-item>
             <Button type="primary" @click="updateProfile" :loading="loadingSaveBtn">Save All</Button>
           </Form-item>
         </Col>
 
         <Col :span="11">
-          <Form-item label="Mood">
-            <Input v-model="formProfile.mood"/>
-          </Form-item>
           <Form-item label="Blog">
             <Input v-model="formProfile.blog"/>
           </Form-item>

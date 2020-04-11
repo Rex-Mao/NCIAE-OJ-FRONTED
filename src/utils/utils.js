@@ -6,8 +6,9 @@ import ojAPI from '@oj/api'
 function submissionMemoryFormat (memory) {
   if (memory === undefined) return '--'
   // 1048576 = 1024 * 1024
-  let t = parseInt(memory) / 1048576
-  return String(t.toFixed(0)) + 'MB'
+  // let t = parseInt(memory) / 1048576
+  let t = parseInt(memory)
+  return String(t.toFixed(0)) + 'KB'
 }
 
 function submissionTimeFormat (time) {
@@ -85,7 +86,7 @@ function getLanguages () {
       resolve(languages)
     }
     ojAPI.getLanguages().then(res => {
-      let languages = res.data.data.languages
+      let languages = res.data.data.results
       storage.set(STORAGE_KEY.languages, languages)
       resolve(languages)
     }, err => {

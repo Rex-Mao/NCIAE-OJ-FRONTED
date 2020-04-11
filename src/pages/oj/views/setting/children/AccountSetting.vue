@@ -152,6 +152,7 @@
             this.loading.btnEmail = false
             this.visible.emailAlert = true
             this.$success('Change email successfully')
+            this.formEmail.old_email = this.formEmail.new_email
             this.$refs.formEmail.resetFields()
           }, res => {
             if (res.data.data === 'tfa_required') {

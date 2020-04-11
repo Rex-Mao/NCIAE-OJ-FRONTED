@@ -15,12 +15,6 @@
         <div class="last-info">
           <p class="last-info-title">{{$t('m.Last_Login')}}</p>
           <el-form label-width="80px" class="last-info-body">
-            <el-form-item label="Time:">
-              <span>{{session.last_activity | localtime}}</span>
-            </el-form-item>
-            <el-form-item label="IP:">
-              <span>{{session.ip}}</span>
-            </el-form-item>
             <el-form-item label="OS">
               <span>{{os}}</span>
             </el-form-item>
@@ -94,6 +88,7 @@
 
 
 <script>
+  import { types } from '@/store'
   import { mapGetters } from 'vuex'
   import browserDetector from 'browser-detect'
   import InfoCard from '@admin/components/infoCard.vue'
@@ -114,47 +109,47 @@
           env: {}
         },
         activeNames: [1],
-        session: {},
         loadingReleases: true,
         releases: []
       }
     },
-    mounted () {
-      api.getDashboardInfo().then(resp => {
-        this.infoData = resp.data.data
-      }, () => {
-      })
-      api.getSessions().then(resp => {
-        this.parseSession(resp.data.data)
-      }, () => {
-      })
-      api.getReleaseNotes().then(resp => {
-        this.loadingReleases = false
-        let data = resp.data.data
-        if (!data) {
-          return
+    beforeRouteEnter (to, from, next) {
+      console.log('Enter Dashboard...')
+      api.getProfile().then(res => {
+        if (res.data.error) {
+          next({name: 'login'})
+        } else {
+          next(vm => {
+            vm.$store.commit(types.CHANGE_PROFILE, {profile: res.data.data})
+          })
         }
-        let currentVersion = data.local_version
-        data.update.forEach(release => {
-          if (release.version > currentVersion) {
-            release.new_version = true
-          }
-        })
-        this.releases = data.update
-      }, () => {
-        this.loadingReleases = false
       })
+      next()
+    },
+    mounted () {
+      // @TODO fix it when you get the dashboard things
+      // api.getDashboardInfo().then(resp => {
+      //   this.infoData = resp.data.data
+      // }, () => {
+      // })
+      // api.getReleaseNotes().then(resp => {
+      //   this.loadingReleases = false
+      //   let data = resp.data.data
+      //   if (!data) {
+      //     return
+      //   }
+      //   let currentVersion = data.local_version
+      //   data.update.forEach(release => {
+      //     if (release.version > currentVersion) {
+      //       release.new_version = true
+      //     }
+      //   })
+      //   this.releases = data.update
+      // }, () => {
+      //   this.loadingReleases = false
+      // })
     },
     methods: {
-      parseSession (sessions) {
-        let session = sessions[0]
-        if (sessions.length > 1) {
-          session = sessions.filter(s => !s.current_session).sort((a, b) => {
-            return a.last_activity < b.last_activity
-          })[0]
-        }
-        this.session = session
-      }
     },
     computed: {
       ...mapGetters(['profile', 'user', 'isSuperAdmin']),
@@ -168,7 +163,7 @@
         return this.infoData.env.FORCE_HTTPS
       },
       browser () {
-        let b = browserDetector(this.session.user_agent)
+        let b = browserDetector()
         if (b.name && b.version) {
           return b.name + ' ' + b.version
         } else {
@@ -176,7 +171,7 @@
         }
       },
       os () {
-        let b = browserDetector(this.session.user_agent)
+        let b = browserDetector()
         return b.os ? b.os : 'Unknown'
       }
     }

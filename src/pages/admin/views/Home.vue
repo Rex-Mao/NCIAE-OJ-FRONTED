@@ -50,9 +50,9 @@
       ScreenFull
     },
     beforeRouteEnter (to, from, next) {
+      console.log('Enter Home...')
       api.getProfile().then(res => {
-        if (!res.data.data) {
-          // not login
+        if (res.data.error) {
           next({name: 'login'})
         } else {
           next(vm => {
@@ -60,13 +60,14 @@
           })
         }
       })
+      next()
     },
     methods: {
       handleCommand (command) {
         if (command === 'logout') {
-          api.logout().then(() => {
-            this.$router.push({name: 'login'})
-          })
+          // api.logout().then(() => {
+          this.$router.push({name: 'login'})
+          // })
         }
       }
     },
