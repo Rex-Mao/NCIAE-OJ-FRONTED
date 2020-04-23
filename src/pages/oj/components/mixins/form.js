@@ -1,4 +1,4 @@
-import api from '@oj/api'
+// import api from '@oj/api'
 
 export default {
   data () {
@@ -19,9 +19,11 @@ export default {
       })
     },
     getCaptchaSrc () {
-      api.getCaptcha().then(res => {
-        this.captchaSrc = res.data.data
-      })
+      this.captchaSrc = '1234'
+      // @TODO when you get the things done start to get the captcha
+      // api.getCaptcha().then(res => {
+      //   this.captchaSrc = res.data.data
+      // })
     }
   }
 }

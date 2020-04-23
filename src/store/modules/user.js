@@ -5,12 +5,14 @@ import i18n from '@/i18n'
 import { STORAGE_KEY, USER_TYPE, PROBLEM_PERMISSION } from '@/utils/constants'
 
 const state = {
-  profile: {}
+  profile: {},
+  jwt: null
 }
 
 const getters = {
   user: state => state.profile.user || {},
   profile: state => state.profile,
+  jwt: state => state.jwt || '',
   isAuthenticated: (state, getters) => {
     return !!getters.user.uid
   },
@@ -29,10 +31,24 @@ const getters = {
 const mutations = {
   [types.CHANGE_PROFILE] (state, {profile}) {
     state.profile = profile
-    if (profile.user.language) {
-      i18n.locale = profile.user.language
+    if (profile.user !== undefined) {
+      if (profile.user.language) {
+        i18n.locale = profile.user.language || 'en-US'
+      }
+      storage.set(STORAGE_KEY.AUTHED, !!profile.user.nickname)
+    } else {
+      i18n.locale = 'en-US'
+      storage.set(STORAGE_KEY.AUTHED, false)
     }
-    storage.set(STORAGE_KEY.AUTHED, !!profile.user.nickname)
+  },
+  [types.CHANGE_JWT] (state, {jwt}) {
+    state.jwt = jwt
+    if (jwt === null) {
+      if (storage.get('JWT') !== null || storage.get('JWT') !== undefined) {
+        storage.remove('JWT')
+      }
+    }
+    storage.set('JWT', jwt)
   }
 }
 
@@ -46,7 +62,17 @@ const actions = {
   },
   clearProfile ({commit}) {
     commit(types.CHANGE_PROFILE, {
-      profile: {}
+      profile: {
+        user: {
+          language: 'en-US'
+        }
+      }
+    })
+    storage.clear()
+  },
+  clearJwt ({commit}) {
+    commit(types.CHANGE_JWT, {
+      jwt: null
     })
     storage.clear()
   }

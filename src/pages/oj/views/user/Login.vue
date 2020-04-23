@@ -34,21 +34,12 @@
 <script>
   import { mapGetters, mapActions } from 'vuex'
   import api from '@oj/api'
-  import storage from '@/utils/storage'
+  import {types} from '@/store'
   import { FormMixin } from '@oj/components/mixins'
 
   export default {
     mixins: [FormMixin],
     data () {
-      // const CheckRequiredTFA = (rule, value, callback) => {
-      //   if (value !== '') {
-      //     api.tfaRequiredCheck(value).then(res => {
-      //       this.tfaRequired = res.data.data.result
-      //     })
-      //   }
-      //   callback()
-      // }
-
       return {
         tfaRequired: false,
         btnLoginLoading: false,
@@ -69,7 +60,7 @@
       }
     },
     methods: {
-      ...mapActions(['changeModalStatus', 'getProfile']),
+      ...mapActions(['changeModalStatus', 'getProfile', 'setJwt']),
       handleBtnClick (mode) {
         this.changeModalStatus({
           mode,
@@ -84,7 +75,7 @@
             delete formData['tfa_code']
           }
           api.login(formData).then(res => {
-            storage.set('JWT', res.data.data)
+            this.$store.commit(types.CHANGE_JWT, { jwt: res.data.data })
             this.btnLoginLoading = false
             this.changeModalStatus({visible: false})
             this.getProfile()

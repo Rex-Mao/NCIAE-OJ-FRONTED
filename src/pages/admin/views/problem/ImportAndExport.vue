@@ -95,7 +95,6 @@
 </template>
 <script>
   import api from '@admin/api'
-  import utils from '@/utils/utils'
 
   export default {
     name: 'import_and_export',

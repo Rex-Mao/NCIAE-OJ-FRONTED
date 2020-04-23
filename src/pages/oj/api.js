@@ -12,7 +12,7 @@ axios.defaults.baseURL = '/api'
 
 export default {
   getWebsiteConf (params) {
-    return ajax('content-center/website', 'get', {
+    return ajax('content-center/public/website', 'get', {
       params
     })
   },
@@ -21,13 +21,16 @@ export default {
       offset: offset,
       limit: limit
     }
-    return ajax('content-center/announcement', 'get', {
+    return ajax('content-center/public/announcement', 'get', {
       params
     })
   },
   login (data) {
     return ajax('user-center/token/login', 'post', {
-      data
+      data,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
     })
   },
   checkUsernameOrEmail (username, email) {
@@ -98,10 +101,10 @@ export default {
     })
   },
   getLanguages () {
-    return ajax('content-center/languages', 'get')
+    return ajax('content-center/public/languages', 'get')
   },
   getProblemTagList () {
-    return ajax('content-center/tags', 'get')
+    return ajax('content-center/public/tags', 'get')
   },
   getProblemList (offset, limit, searchParams) {
     let params = {
@@ -114,7 +117,7 @@ export default {
         params[element] = searchParams[element]
       }
     })
-    return ajax('content-center/problems', 'get', {
+    return ajax('content-center/public/problems', 'get', {
       params: params
     })
   },
@@ -122,7 +125,7 @@ export default {
     return ajax('pickone', 'get')
   },
   getProblem (problemID) {
-    var url = 'content-center/problem/' + String(problemID)
+    var url = 'content-center/public/problem/' + String(problemID)
     return ajax(url, 'get')
   },
   getContestList (offset, limit, searchParams) {
@@ -193,7 +196,7 @@ export default {
   getSubmissionList (offset, limit, params) {
     params.limit = limit
     params.offset = offset
-    return ajax('content-center/submissions', 'get', {
+    return ajax('content-center/public/submissions', 'get', {
       params
     })
   },
@@ -231,7 +234,7 @@ export default {
     })
   },
   getSolvedProblems () {
-    return ajax('content-center/problems/solved', 'get')
+    return ajax('content-center/problem/solved', 'get')
   },
   getUserRank (offset, limit, rule = 'acm') {
     let params = {
@@ -269,39 +272,51 @@ export default {
  */
 function ajax (url, method, options) {
   if (options !== undefined) {
-    var {params = {}, data = {}} = options
+    var {params = {}, data = {}, headers = {}} = options
   } else {
-    params = data = {}
+    params = data = headers = {}
   }
-  data = qs.stringify(data)
+  // data = qs.stringify(data)
+  // var headers = {}
+  // if (jwt !== null) {
+  //   headers['Authorization'] = 'Bearer ' + jwt
+  // }
+  // if (method === 'post') {
+  //   headers['Content-Type'] = 'application/x-www-form-urlencoded'
+  // }
   let jwt = storage.get('JWT')
-  if (jwt !== null || jwt !== undefined) {
-    var headers = {
-      Authorization: 'Bearer ' + jwt
+  axios.defaults.headers.common['Authorization'] = 'Bearer ' + jwt
+  if (headers['Content-Type'] !== undefined) {
+    axios.defaults.headers['Content-Type'] = headers['Content-Type']
+    if (headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+      data = qs.stringify(data)
     }
+  } else {
+    axios.defaults.headers['Content-Type'] = 'application/json;charset=UTF-8'
   }
   return new Promise((resolve, reject) => {
     axios({
       url,
       method,
-      headers,
       params,
       data
     }).then(res => {
       // API正常返回(status=20x), 是否错误通过有无error判断
       if (res.data.error !== null) {
-        Vue.prototype.$error(res.data.data)
+        if (res.data.data !== undefined || res.data.data !== null) {
+          Vue.prototype.$error(res.data.data)
+        }
         reject(res)
-        if (res.data.data.startsWith('Please Login')) {
+        if (res.data.data.startsWith('Please login again')) {
           store.dispatch('changeModalStatus', {'mode': 'login', 'visible': true})
         }
       } else {
         resolve(res)
       }
     }, res => {
+      console.log(res)
       // API请求异常，一般为Server error 或 network error
       reject(res)
-      Vue.prototype.$error(res.data.data)
     })
   })
 }

@@ -17,6 +17,8 @@
 
 <script>
   import api from '../../api'
+  import { mapActions } from 'vuex'
+  import {types} from '@/store'
 
   export default {
     data () {
@@ -38,12 +40,14 @@
       }
     },
     methods: {
+      ...mapActions(['setJwt']),
       handleLogin (ev) {
         this.$refs.ruleForm2.validate((valid) => {
           if (valid) {
             this.logining = true
             // @TODO reject the login when develop
-            api.login(this.ruleForm2.account, this.ruleForm2.password).then(data => {
+            api.login(this.ruleForm2.account, this.ruleForm2.password).then(res => {
+              this.$store.commit(types.CHANGE_JWT, { jwt: res.data.data })
               this.logining = false
               this.$router.push({name: 'dashboard'})
             }, () => {

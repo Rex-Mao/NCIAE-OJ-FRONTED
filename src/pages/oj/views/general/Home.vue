@@ -33,9 +33,9 @@
 
 <script>
   import Announcements from './Announcements.vue'
-  import api from '@oj/api'
+  // import api from '@oj/api'
   import time from '@/utils/time'
-  import { CONTEST_STATUS } from '@/utils/constants'
+  // import { CONTEST_STATUS } from '@/utils/constants'
 
   export default {
     name: 'home',
@@ -49,10 +49,10 @@
       }
     },
     mounted () {
-      let params = {status: CONTEST_STATUS.NOT_START}
-      api.getContestList(0, 5, params).then(res => {
-        this.contests = res.data.data.results
-      })
+      // let params = {status: CONTEST_STATUS.NOT_START}
+      // api.getContestList(0, 5, params).then(res => {
+      //   this.contests = res.data.data.results
+      // })
     },
     methods: {
       getDuration (startTime, endTime) {

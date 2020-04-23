@@ -90,16 +90,7 @@
       },
       getSolvedProblems () {
         api.getSolvedProblems().then(res => {
-          let ACMProblems = res.data.data || {}
-          let ACProblems = []
-          for (let problems of ACMProblems) {
-            Object.keys(problems).forEach(problemID => {
-              if (problems[problemID]['status'] === 0) {
-                ACProblems.push(problems[problemID]['pid'])
-              }
-            })
-          }
-          ACProblems.sort()
+          let ACProblems = res.data.data.results || {}
           this.problems = ACProblems
         })
       },

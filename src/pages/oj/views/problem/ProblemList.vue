@@ -53,12 +53,12 @@
     <Panel :padding="10">
       <div slot="title" class="taglist-title">{{$t('m.Tags')}}</div>
       <Button v-for="tag in tagList"
-              :key="tag.tname"
-              @click="filterByTag(tag.tname)"
+              :key="tag.tid"
+              @click="filterByTag(tag.tName)"
               type="ghost"
-              :disabled="query.tag === tag.tname"
+              :disabled="query.tag === tag.tName"
               shape="circle"
-              class="tag-btn">{{tag.tname}}
+              class="tag-btn">{{tag.tName}}
       </Button>
 
       <Button long id="pick-one" @click="pickone">
@@ -243,7 +243,7 @@
               render: (h, params) => {
                 let tags = []
                 params.row.tags.forEach(tag => {
-                  tags.push(h('Tag', {}, tag.tname))
+                  tags.push(h('Tag', {}, tag.tName))
                 })
                 return h('div', {
                   style: {

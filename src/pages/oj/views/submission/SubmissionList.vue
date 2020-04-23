@@ -189,6 +189,7 @@
     mounted () {
       this.init()
       this.JUDGE_STATUS = Object.assign({}, JUDGE_STATUS)
+      utils.getLanguages()
       // 去除submitting的状态 和 两个
       delete this.JUDGE_STATUS['9']
       delete this.JUDGE_STATUS['2']

@@ -2,13 +2,13 @@
 </template>
 
 <script>
-  import api from '../../api.js'
-
   export default {
     mounted () {
-      this.$store.dispatch('clearProfile')
-      this.$router.replace({
-        path: '/'
+      this.$store.dispatch('clearProfile').then(res => {
+        this.$store.dispatch('clearJwt').then(res => {
+          console.log(window.localStorage.getItem('JWT'))
+          this.$router.replace('/')
+        })
       })
     }
   }

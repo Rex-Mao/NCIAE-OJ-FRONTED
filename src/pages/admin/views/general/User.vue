@@ -23,36 +23,36 @@
         style="width: 100%">
         <el-table-column type="selection" width="55"></el-table-column>
 
-        <el-table-column prop="id" label="ID"></el-table-column>
+        <el-table-column prop="uid" label="ID"></el-table-column>
 
-        <el-table-column prop="username" label="Username"></el-table-column>
+        <el-table-column prop="nickname" label="Username"></el-table-column>
 
-        <el-table-column prop="create_time" label="Create Time">
+        <el-table-column prop="regtime" label="Create Time">
           <template slot-scope="scope">
-            {{scope.row.create_time | localtime }}
+            {{scope.row.regtime | localtime }}
           </template>
         </el-table-column>
-
-        <el-table-column prop="last_login" label="Last Login">
-          <template slot-scope="scope">
-            {{scope.row.last_login | localtime }}
-          </template>
-        </el-table-column>
-
-        <el-table-column prop="real_name" label="Real Name"></el-table-column>
 
         <el-table-column prop="email" label="Email"></el-table-column>
 
-        <el-table-column prop="admin_type" label="User Type">
+        <el-table-column prop="roles" label="Highest Authority">
           <template slot-scope="scope">
-            {{ scope.row.admin_type }}
+            <el-tooltip v-if="scope.row.roles.length !== 0" placement="bottom-start">
+              <div slot="content" v-for="item in scope.row.roles" :key="item.roleId">
+                {{ item.rolename }}
+              </div>
+              <el-button > {{ scope.row.roles[0].rolename }}</el-button>
+            </el-tooltip>
+            <el-tooltip v-else>
+              <el-button > No Authority </el-button>
+            </el-tooltip>
           </template>
         </el-table-column>
 
         <el-table-column fixed="right" label="Option" width="200">
           <template slot-scope="{row}">
-            <icon-btn name="Edit" icon="edit" @click.native="openUserDialog(row.id)"></icon-btn>
-            <icon-btn name="Delete" icon="trash" @click.native="deleteUsers([row.id])"></icon-btn>
+            <icon-btn name="Edit" icon="edit" @click.native="openUserDialog(row.uid)"></icon-btn>
+            <icon-btn name="Delete" icon="trash" @click.native="deleteUsers([row.uid])"></icon-btn>
           </template>
         </el-table-column>
       </el-table>
@@ -67,7 +67,7 @@
       </div>
     </Panel>
 
-    <Panel>
+    <!-- <Panel>
       <span slot="title">{{$t('m.Import_User')}}
         <el-popover placement="right" trigger="hover">
           <p>Only support csv file without headers, check the <a
@@ -118,9 +118,9 @@
           </el-pagination>
         </div>
       </template>
-    </Panel>
+    </Panel> -->
 
-    <Panel :title="$t('m.Generate_User')">
+    <!-- <Panel :title="$t('m.Generate_User')">
       <el-form :model="formGenerateUser" ref="formGenerateUser">
         <el-row type="flex" justify="space-between">
           <el-col :span="4">
@@ -166,80 +166,29 @@
           </span>
         </el-form-item>
       </el-form>
-    </Panel>
+    </Panel> -->
     <!--对话框-->
     <el-dialog :title="$t('m.User_Info')" :visible.sync="showUserDialog" :close-on-click-modal="false">
-      <el-form :model="user" label-width="120px" label-position="left">
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item :label="$t('m.User_Username')" required>
-              <el-input v-model="user.username"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('m.User_Real_Name')" required>
-              <el-input v-model="user.real_name"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('m.User_Email')" required>
-              <el-input v-model="user.email"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('m.User_New_Password')">
-              <el-input v-model="user.password"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('m.User_Type')">
-              <el-select v-model="user.admin_type">
-                <el-option label="Regular User" value="Regular User"></el-option>
-                <el-option label="Admin" value="Admin"></el-option>
-                <el-option label="Super Admin" value="Super Admin"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('m.Problem_Permission')">
-              <el-select v-model="user.problem_permission" :disabled="user.admin_type!=='Admin'">
-                <el-option label="None" value="None"></el-option>
-                <el-option label="Own" value="Own"></el-option>
-                <el-option label="All" value="All"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item :label="$t('m.Two_Factor_Auth')">
-              <el-switch
-                v-model="user.two_factor_auth"
-                :disabled="!user.real_tfa"
-                active-color="#13ce66"
-                inactive-color="#ff4949">
-              </el-switch>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="Open Api">
-              <el-switch
-                v-model="user.open_api"
-                active-color="#13ce66"
-                inactive-color="#ff4949">
-              </el-switch>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item :label="$t('m.Is_Disabled')">
-              <el-switch
-                v-model="user.is_disabled">
-              </el-switch>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
+      <el-table
+        v-loading="loadingTable"
+        element-loading-text="loading"
+        @selection-change="handleRoleSelectionChange"
+        ref="multipleTable"
+        :data="roles"
+        style="width: 100%">
+        <el-table-column type="selection" width="55" ></el-table-column>
+
+        <el-table-column prop="roleId" label="Role ID"></el-table-column>
+
+        <el-table-column prop="rolename" label="Role Name"></el-table-column>
+
+        <el-table-column prop="description" label="Description"></el-table-column>
+
+      </el-table>
       <span slot="footer" class="dialog-footer">
+        <el-button @click="toggleSelection(roles)">Show User's Role</el-button>
         <cancel @click.native="showUserDialog = false">Cancel</cancel>
-        <save @click.native="saveUser()"></save>
+        <save @click.native="saveUserRoles()"></save>
       </span>
     </el-dialog>
   </div>
@@ -259,7 +208,16 @@
         // 用户总数
         total: 0,
         // 用户列表
-        userList: [],
+        userList: [
+          {
+            roles: [
+              {
+                roleId: null,
+                rolename: null,
+                description: null
+              }]
+          }
+        ],
         uploadUsers: [],
         uploadUsersPage: [],
         uploadUsersCurrentPage: 1,
@@ -270,6 +228,8 @@
         showUserDialog: false,
         // 当前用户model
         user: {},
+        roles: [],
+        selectedRoles: [],
         loadingTable: false,
         loadingGenerate: false,
         // 当前页码
@@ -294,8 +254,12 @@
         this.getUserList(page)
       },
       // 提交修改用户的信息
-      saveUser () {
-        api.editUser(this.user).then(res => {
+      saveUserRoles () {
+        var selectedFullRoleIds = []
+        this.selectedRoles.forEach(
+          (role) => selectedFullRoleIds.push(role.roleId)
+        )
+        api.editUserRoles(this.user.uid, selectedFullRoleIds).then(res => {
           // 更新列表
           this.getUserList(this.currentPage)
         }).then(() => {
@@ -304,12 +268,16 @@
         })
       },
       // 打开用户对话框
-      openUserDialog (id) {
+      openUserDialog (uid) {
         this.showUserDialog = true
-        api.getUser(id).then(res => {
-          this.user = res.data.data
+        this.selectedRoles = []
+        api.getRoles().then(res => {
+          this.roles = res.data.data.roles
+        })
+        api.getUser(uid).then(res => {
+          this.user = res.data.data.user
           this.user.password = ''
-          this.user.real_tfa = this.user.two_factor_auth
+          this.selectedRoles = res.data.data.roles
         })
       },
       // 获取用户列表
@@ -323,11 +291,26 @@
           this.loadingTable = false
         })
       },
+      toggleSelection (rows) {
+        if (rows) {
+          var roleIds = []
+          if (this.selectedRoles !== null) {
+            roleIds = this.selectedRoles.map(role => role.roleId)
+          }
+          rows.forEach(row => {
+            if (roleIds.indexOf(row.roleId) > -1) {
+              this.$refs.multipleTable.toggleRowSelection(row)
+            }
+          })
+        } else {
+          this.$refs.multipleTable.clearSelection()
+        }
+      },
       deleteUsers (ids) {
-        this.$confirm('Sure to delete the user? The associated resources created by this user will be deleted as well, like problem, contest, announcement, etc.', 'confirm', {
+        this.$confirm('Sure to delete all the user authority?', 'confirm', {
           type: 'warning'
         }).then(() => {
-          api.deleteUsers(ids.join(',')).then(res => {
+          api.deleteUsers(ids).then(res => {
             this.getUserList(this.currentPage)
           }).catch(() => {
             this.getUserList(this.currentPage)
@@ -337,6 +320,9 @@
       },
       handleSelectionChange (val) {
         this.selectedUsers = val
+      },
+      handleRoleSelectionChange (val) {
+        this.selectedRoles = val
       },
       generateUser () {
         this.$refs['formGenerateUser'].validate((valid) => {

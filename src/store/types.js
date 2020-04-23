@@ -11,6 +11,7 @@ function keyMirror (obj) {
 
 export default keyMirror({
   'CHANGE_PROFILE': null,
+  'CHANGE_JWT': null,
   'CHANGE_MODAL_STATUS': null,
   'UPDATE_WEBSITE_CONF': null,
 

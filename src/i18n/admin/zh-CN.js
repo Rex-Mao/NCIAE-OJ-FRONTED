@@ -27,7 +27,7 @@ export const m = {
   User_Real_Name: '真实姓名',
   User_Email: '用户邮箱',
   User_New_Password: '用户密码',
-  User_Type: '用户类型',
+  User_Authority: '最高权限',
   Problem_Permission: '问题权限',
   Two_Factor_Auth: '双因素认证',
   Is_Disabled: '是否可用',

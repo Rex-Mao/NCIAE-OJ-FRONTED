@@ -15,6 +15,9 @@ export default {
       data: {
         username,
         password
+      },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
       }
     })
   },
@@ -57,68 +60,53 @@ export default {
     if (keyword) {
       params.keyword = keyword
     }
-    return ajax('admin/user', 'get', {
+    return ajax('user-center/admin/users', 'get', {
       params: params
     })
   },
   // 获取单个用户信息
-  getUser (id) {
-    return ajax('admin/user', 'get', {
-      params: {
-        id
-      }
-    })
+  getUser (uid) {
+    var url = 'user-center/admin/user/' + String(uid)
+    return ajax(url, 'get')
+  },
+  getRoles () {
+    var url = 'user-center/admin/role'
+    return ajax(url, 'get')
   },
   // 编辑用户
   editUser (data) {
-    return ajax('admin/user', 'put', {
+    return ajax('user-center/admin/user', 'put', {
       data
     })
   },
-  deleteUsers (id) {
-    return ajax('admin/user', 'delete', {
-      params: {
-        id
-      }
+  editUserRoles (uid, data) {
+    var url = 'user-center/super/admin/userrole/' + String(uid)
+    return ajax(url, 'put', {
+      data
+    })
+  },
+  deleteUsers (data) {
+    return ajax('user-center/super/admin/userrole', 'delete', {
+      data
     })
   },
   importUsers (users) {
-    return ajax('admin/user', 'post', {
+    return ajax('user-center/admin/user', 'post', {
       data: {
         users
       }
     })
   },
   generateUser (data) {
-    return ajax('admin/generate_user', 'post', {
+    return ajax('user-center/admin/generate_user', 'post', {
       data
     })
   },
   getLanguages () {
-    return ajax('content-center/languages', 'get')
-  },
-  getSMTPConfig () {
-    return ajax('admin/smtp', 'get')
-  },
-  createSMTPConfig (data) {
-    return ajax('admin/smtp', 'post', {
-      data
-    })
-  },
-  editSMTPConfig (data) {
-    return ajax('admin/smtp', 'put', {
-      data
-    })
-  },
-  testSMTPConfig (email) {
-    return ajax('admin/smtp_test', 'post', {
-      data: {
-        email
-      }
-    })
+    return ajax('content-center/public/languages', 'get')
   },
   getWebsiteConfig () {
-    return ajax('content-center/website', 'get')
+    return ajax('content-center/public/website', 'get')
   },
   editWebsiteConfig (data) {
     return ajax('admin/website', 'post', {
@@ -297,22 +285,28 @@ export default {
  */
 function ajax (url, method, options) {
   if (options !== undefined) {
-    var {params = {}, data = {}} = options
+    var {params = {}, data = {}, headers = {}} = options
   } else {
-    params = data = {}
+    params = data = headers = {}
   }
-  data = qs.stringify(data)
+  // data = qs.stringify(data)
+  // var headers = {
+  //   Authorization: 'Bearer ' + jwt
+  // }
   let jwt = storage.get('JWT')
-  if (jwt !== null || jwt !== undefined) {
-    var headers = {
-      Authorization: 'Bearer ' + jwt
+  axios.defaults.headers.common['Authorization'] = 'Bearer ' + jwt
+  if (headers['Content-Type'] !== undefined) {
+    axios.defaults.headers['Content-Type'] = headers['Content-Type']
+    if (headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+      data = qs.stringify(data)
     }
+  } else {
+    axios.defaults.headers['Content-Type'] = 'application/json;charset=UTF-8'
   }
   return new Promise((resolve, reject) => {
     axios({
       url,
       method,
-      headers,
       params,
       data
     }).then(res => {
