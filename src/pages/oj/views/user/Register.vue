@@ -1,8 +1,8 @@
 <template>
 <div>
     <Form ref="formRegister" :model="formRegister" :rules="ruleRegister">
-      <FormItem prop="username">
-        <Input type="text" v-model="formRegister.username" :placeholder="$t('m.RegisterUsername')" size="large" @on-enter="handleRegister">
+      <FormItem prop="nickname">
+        <Input type="text" v-model="formRegister.nickname" :placeholder="$t('m.RegisterUsername')" size="large" @on-enter="handleRegister">
         <Icon type="ios-person-outline" slot="prepend"></Icon>
         </Input>
       </FormItem>
@@ -21,7 +21,7 @@
         <Icon type="ios-locked-outline" slot="prepend"></Icon>
         </Input>
       </FormItem>
-      <FormItem prop="captcha" style="margin-bottom:10px">
+      <!-- <FormItem prop="captcha" style="margin-bottom:10px">
         <div class="oj-captcha">
           <div class="oj-captcha-code">
             <Input v-model="formRegister.captcha" :placeholder="$t('m.Captcha')" size="large" @on-enter="handleRegister">
@@ -34,7 +34,7 @@
             </Tooltip>
           </div>
         </div>
-      </FormItem>
+      </FormItem> -->
     </Form>
     <div class="footer">
       <Button
@@ -67,7 +67,7 @@
     data () {
       const CheckUsernameNotExist = (rule, value, callback) => {
         api.checkUsernameOrEmail(value, undefined).then(res => {
-          if (res.data.data.username === true) {
+          if (res.data.data.nickname === true) {
             callback(new Error(this.$i18n.t('m.The_username_already_exists')))
           } else {
             callback()
@@ -101,14 +101,14 @@
       return {
         btnRegisterLoading: false,
         formRegister: {
-          username: '',
+          nickname: '',
           password: '',
           passwordAgain: '',
-          email: '',
-          captcha: ''
+          email: ''
+          // captcha: ''
         },
         ruleRegister: {
-          username: [
+          nickname: [
             {required: true, trigger: 'blur'},
             {validator: CheckUsernameNotExist, trigger: 'blur'}
           ],
@@ -122,10 +122,10 @@
           ],
           passwordAgain: [
             {required: true, validator: CheckAgainPassword, trigger: 'change'}
-          ],
-          captcha: [
-            {required: true, trigger: 'blur', min: 1, max: 10}
           ]
+          // captcha: [
+          //   {required: true, trigger: 'blur', min: 1, max: 10}
+          // ]
         }
       }
     },

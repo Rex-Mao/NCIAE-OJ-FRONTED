@@ -128,6 +128,7 @@ export const m = {
   Underway: '进行中',
   Not_Started: '筹备中',
   Ended: '已结束',
+  Not_Online: '已下线',
   No_contest: '尚无练习或比赛',
   Please_login_first: '请先登录！',
   // ContestProblemList.vue

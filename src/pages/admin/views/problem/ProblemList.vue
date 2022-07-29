@@ -13,7 +13,6 @@
         element-loading-text="loading"
         ref="table"
         :data="problemList"
-        @row-dblclick="handleDblclick"
         style="width: 100%">
         <el-table-column
           width="100"
@@ -24,59 +23,37 @@
           width="150"
           label="Display ID">
           <template slot-scope="{row}">
-            <span v-show="!row.isEditing">{{row.pid}}</span>
-            <el-input v-show="row.isEditing" v-model="row._id"
-                      @keyup.enter.native="handleInlineEdit(row)">
-
-            </el-input>
+            <span v-show="!row.isEditing">{{isContestMode ? row.displayId : row.pid}}</span>
           </template>
         </el-table-column>
         <el-table-column
-          prop="title"
           label="Title">
           <template slot-scope="{row}">
-            <span v-show="!row.isEditing">{{row.title}}</span>
-            <el-input v-show="row.isEditing" v-model="row.title"
-                      @keyup.enter.native="handleInlineEdit(row)">
-            </el-input>
+            <span v-show="!row.isEditing">{{isContestMode ? row.problem.title : row.title}}</span>
           </template>
         </el-table-column>
         <el-table-column
           prop="author"
           label="Author">
-        </el-table-column>
-        <!-- <el-table-column
-          width="200"
-          prop="create_time"
-          label="Create Time">
-          <template slot-scope="scope">
-            {{scope.row.create_time | localtime }}
+          <template slot-scope="{row}">
+            <span v-show="!row.isEditing">{{isContestMode? row.problem.author : row.author}}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          width="100"
-          prop="visible"
-          label="Visible">
-          <template slot-scope="scope">
-            <el-switch v-model="scope.row.visible"
-                       active-text=""
-                       inactive-text=""
-                       @change="updateProblem(scope.row)">
-            </el-switch>
-          </template>
-        </el-table-column> -->
         <el-table-column
           fixed="right"
           label="Operation"
           width="250">
           <div slot-scope="scope">
-            <icon-btn name="Edit" icon="edit" @click.native="goEdit(scope.row.pid)"></icon-btn>
-            <icon-btn v-if="contestId" name="Make Public" icon="clone"
-                      @click.native="makeContestProblemPublic(scope.row.pid)"></icon-btn>
-            <icon-btn icon="download" name="Download TestCase"
-                      @click.native="downloadTestCase(scope.row.pid)"></icon-btn>
+            <icon-btn v-if="isContestMode && scope.row.problem.status === 0" name="This is a Public Problem" icon="star"></icon-btn>
+            <icon-btn v-if="(!isContestMode && scope.row.status === 0) || (isContestMode && scope.row.problem.status === 1)" 
+                      name="Edit" icon="edit" @click.native="goEdit((isContestMode ? scope.row.cpid : scope.row.pid))"></icon-btn>
+            <!-- @TODO get the public problem when you rebuild the project -->
+            <!-- <icon-btn v-if="contestId && (isContestMode && scope.row.problem.status === 1)" name="Make Public" icon="clone"
+                      @click.native="makeContestProblemPublic(scope.row.cpid)"></icon-btn> -->
+            <!-- <icon-btn icon="download" name="Download TestCase"
+                      @click.native="downloadTestCase(scope.row.pid)"></icon-btn> -->
             <icon-btn icon="trash" name="Delete Problem"
-                      @click.native="deleteProblem(scope.row.pid)"></icon-btn>
+                      @click.native="deleteProblem((isContestMode ? scope.row.cpid : scope.row.pid))"></icon-btn>
           </div>
         </el-table-column>
       </el-table>
@@ -97,19 +74,6 @@
         </el-pagination>
       </div>
     </Panel>
-    <el-dialog title="Sure to update the problem? "
-               width="20%"
-               :visible.sync="InlineEditDialogVisible"
-               @close-on-click-modal="false">
-      <div>
-        <p>DisplayID: {{currentRow._id}}</p>
-        <p>Title: {{currentRow.title}}</p>
-      </div>
-      <span slot="footer">
-        <cancel @click.native="InlineEditDialogVisible = false; getProblemList(currentPage)"></cancel>
-        <save @click.native="updateProblem(currentRow)"></save>
-      </span>
-    </el-dialog>
     <el-dialog title="Add Contest Problem"
                v-if="contestId"
                width="80%"
@@ -141,6 +105,7 @@
         routeName: '',
         contestId: '',
         // for make public use
+        isContestMode: false,
         currentProblemID: '',
         currentRow: {},
         InlineEditDialogVisible: false,
@@ -151,12 +116,12 @@
     mounted () {
       this.routeName = this.$route.name
       this.contestId = this.$route.params.contestId
+      if (this.routeName === 'contest-problem-list') {
+        this.isContestMode = true
+      }
       this.getProblemList(this.currentPage)
     },
     methods: {
-      handleDblclick (row) {
-        row.isEditing = true
-      },
       goEdit (problemId) {
         if (this.routeName === 'problem-list') {
           this.$router.push({name: 'edit-problem', params: {problemId: problemId}})
@@ -183,7 +148,7 @@
           limit: this.pageSize,
           offset: (page - 1) * this.pageSize,
           keyword: this.keyword,
-          contest_id: this.contestId
+          cid: this.contestId
         }
         api[funcName](params).then(res => {
           this.loading = false
@@ -218,7 +183,7 @@
         let data = Object.assign({}, row)
         let funcName = ''
         if (this.contestId) {
-          data.contest_id = this.contestId
+          data.cid = this.contestId
           funcName = 'editContestProblem'
         } else {
           funcName = 'editProblem'
@@ -229,10 +194,6 @@
         }).catch(() => {
           this.InlineEditDialogVisible = false
         })
-      },
-      handleInlineEdit (row) {
-        this.currentRow = row
-        this.InlineEditDialogVisible = true
       },
       downloadTestCase (problemID) {
         let url = '/admin/test_case?problem_id=' + problemID

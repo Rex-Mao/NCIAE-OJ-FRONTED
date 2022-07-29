@@ -41,10 +41,10 @@
               <div slot="content" v-for="item in scope.row.roles" :key="item.roleId">
                 {{ item.rolename }}
               </div>
-              <el-button > {{ scope.row.roles[0].rolename }}</el-button>
+              <el-tag> {{ scope.row.roles[0].rolename }}</el-tag>
             </el-tooltip>
             <el-tooltip v-else>
-              <el-button > No Authority </el-button>
+              <el-tag type="danger" > No Authority </el-tag>
             </el-tooltip>
           </template>
         </el-table-column>

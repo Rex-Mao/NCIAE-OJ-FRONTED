@@ -26,9 +26,9 @@
                 <span slot="close">{{$t('m.All')}}</span>
               </i-switch>
             </li>
-            <li>
+            <!-- <li>
               <Input v-model="formFilter.username" :placeholder="$t('m.Search_Author')" @on-enter="handleQueryChange"/>
-            </li>
+            </li> -->
 
             <li>
               <Button type="info" icon="refresh" @click="getSubmissions">{{$t('m.Refresh')}}</Button>
@@ -213,7 +213,7 @@
         return {
           myself: this.formFilter.myself === true ? '1' : '0',
           result: this.formFilter.result,
-          username: this.formFilter.username,
+          username: this.formFilter.myself === true ? this.user.nickname : this.formFilter.username,
           page: this.page
         }
       },

@@ -139,19 +139,16 @@ export default {
     })
   },
   createContest (data) {
-    return ajax('admin/contest', 'post', {
+    return ajax('content-center/admin/contest', 'post', {
       data
     })
   },
-  getContest (id) {
-    return ajax('admin/contest', 'get', {
-      params: {
-        id
-      }
-    })
+  getContest (cid) {
+    var url = 'content-center/admin/contest/' + String(cid)
+    return ajax(url, 'get')
   },
   editContest (data) {
-    return ajax('admin/contest', 'put', {
+    return ajax('content-center/admin/contest', 'put', {
       data
     })
   },
@@ -160,36 +157,30 @@ export default {
     if (keyword) {
       params.keyword = keyword
     }
-    return ajax('admin/contest', 'get', {
+    return ajax('content-center/admin/contests', 'get', {
       params: params
     })
   },
-  getContestAnnouncementList (contestID) {
-    return ajax('admin/contest/announcement', 'get', {
-      params: {
-        contest_id: contestID
-      }
-    })
+  getContestAnnouncementList (cid) {
+    var url = 'content-center/admin/contest/announcement/' + String(cid)
+    return ajax(url, 'get')
   },
   createContestAnnouncement (data) {
-    return ajax('admin/contest/announcement', 'post', {
+    return ajax('content-center/admin/contest/announcement', 'post', {
       data
     })
   },
-  deleteContestAnnouncement (id) {
-    return ajax('admin/contest/announcement', 'delete', {
-      params: {
-        id
-      }
-    })
+  deleteContestAnnouncement (nid) {
+    var url = 'content-center/admin/contest/announcement/' + String(nid)
+    return ajax(url, 'delete')
   },
   updateContestAnnouncement (data) {
-    return ajax('admin/contest/announcement', 'put', {
+    return ajax('content-center/admin/contest/announcement', 'put', {
       data
     })
   },
   getProblemTagList () {
-    return ajax('content-center/problem/tags', 'get')
+    return ajax('content-center/public/tags', 'get')
   },
   compileSPJ (data) {
     return ajax('content-center/admin/compile_spj', 'post', {
@@ -207,11 +198,8 @@ export default {
     })
   },
   deleteProblem (pid) {
-    return ajax('content-center/admin/problem', 'delete', {
-      params: {
-        pid
-      }
-    })
+    var url = 'content-center/admin/problem/' + String(pid)
+    return ajax(url, 'delete')
   },
   getProblem (problemID) {
     var url = 'content-center/admin/problem/' + String(problemID)
@@ -225,41 +213,37 @@ export default {
   },
   getContestProblemList (params) {
     params = utils.filterEmptyValue(params)
-    return ajax('content-center/admin/contest/problems', 'get', {
+    var url = 'content-center/admin/contest/problems/' + String(params.cid)
+    delete params.cid
+    return ajax(url, 'get', {
       params
     })
   },
-  getContestProblem (id) {
-    return ajax('content-center/admin/contest/problem', 'get', {
-      params: {
-        id
-      }
-    })
+  getContestProblem (cpid) {
+    var url = 'content-center/admin/contest/problem/' + String(cpid)
+    return ajax(url, 'get')
   },
   createContestProblem (data) {
-    return ajax('admin/contest/problem', 'post', {
+    return ajax('content-center/admin/contest/problem', 'post', {
       data
     })
   },
   editContestProblem (data) {
-    return ajax('admin/contest/problem', 'put', {
+    return ajax('content-center/admin/contest/problem', 'put', {
       data
     })
   },
-  deleteContestProblem (id) {
-    return ajax('admin/contest/problem', 'delete', {
-      params: {
-        id
-      }
-    })
+  deleteContestProblem (cpid) {
+    var url = 'content-center/admin/contest/problem/' + String(cpid)
+    return ajax(url, 'delete')
   },
   makeContestProblemPublic (data) {
-    return ajax('admin/contest_problem/make_public', 'post', {
+    return ajax('content-center/admin/contest_problem/make_public', 'post', {
       data
     })
   },
   addProblemFromPublic (data) {
-    return ajax('admin/contest/add_problem_from_public', 'post', {
+    return ajax('content-center/admin/contest/from/public', 'post', {
       data
     })
   },
@@ -313,6 +297,7 @@ function ajax (url, method, options) {
       // API正常返回(status=20x), 是否错误通过有无error判断
       if (res.data.error !== null) {
         Vue.prototype.$error(res.data.data)
+        Vue.prototype.$error(res.data.error)
         reject(res)
         if (res.data.error.startsWith('40')) {
           router.push({name: 'login'})

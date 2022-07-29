@@ -132,20 +132,6 @@
               }, params.row.title)
             }
           },
-          // {
-          //   title: this.$i18n.t('m.Level'),
-          //   render: (h, params) => {
-          //     let t = params.row.difficulty
-          //     let color = 'blue'
-          //     if (t === 'Low') color = 'green'
-          //     else if (t === 'High') color = 'yellow'
-          //     return h('Tag', {
-          //       props: {
-          //         color: color
-          //       }
-          //     }, this.$i18n.t('m.' + params.row.difficulty))
-          //   }
-          // },
           {
             title: this.$i18n.t('m.Total'),
             key: 'submitNum'

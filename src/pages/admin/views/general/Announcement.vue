@@ -171,7 +171,7 @@
         this.loading = true
         api.getContestAnnouncementList(this.contestID).then(res => {
           this.loading = false
-          this.announcementList = res.data.data
+          this.announcementList = res.data.data.results
         }).catch(() => {
           this.loading = false
         })
@@ -208,7 +208,7 @@
           }
         }
         if (this.contestID) {
-          data.contest_id = this.contestID
+          data.cid = this.contestID
           funcName = this.mode === 'edit' ? 'updateContestAnnouncement' : 'createContestAnnouncement'
         } else {
           funcName = this.mode === 'edit' ? 'updateAnnouncement' : 'createAnnouncement'

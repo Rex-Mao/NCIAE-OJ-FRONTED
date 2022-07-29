@@ -291,11 +291,17 @@
         this.contestID = this.$route.params.contestID
         this.problemID = this.$route.params.problemID
         let func = this.$route.name === 'problem-details' ? 'getProblem' : 'getContestProblem'
-        api[func](this.problemID, this.contestID).then(res => {
+        api[func](this.problemID).then(res => {
           this.$Loading.finish()
-          let problem = res.data.data
+          var problem = null
+          if (this.$route.name === 'contest-problem-details') {
+            problem = res.data.data.problem
+          } else {
+            problem = res.data.data
+          }
+          console.log(problem)
           this.changeDomTitle({title: problem.title})
-          // api.submissionExists(problem.id).then(res => {
+          // api.submissionExists(problem.pid).then(res => {
           //   this.submissionExists = res.data.data
           // })
           problem.languages = problem.languages.sort()
@@ -335,19 +341,9 @@
         data2[1].selected = true
         this.largePie.series[1].data = data2
 
-        // 根据结果设置legend,没有提交过的legend不显示
-        // let legend = Object.keys(problemData.statistic_info).map(ele => JUDGE_STATUS[ele].short)
-        // if (legend.length === 0) {
-        //   legend.push('AC', 'WA')
-        // }
-        // this.largePie.legend.data = legend
-
         // 把ac的数据提取出来放在最后
         let acCount = problemData.solvedNum
         let largePieData = []
-        // Object.keys(problemData.statistic_info).forEach(ele => {
-        //   largePieData.push({name: JUDGE_STATUS[ele].short, value: problemData.statistic_info[ele]})
-        // })
         largePieData.push({name: 'AC', value: acCount})
         this.largePie.series[0].data = largePieData
       },
@@ -411,10 +407,11 @@
         this.submissionId = ''
         this.result = {result: 9}
         this.submitting = true
+        var userTemp = this.getUser
         let data = {
           // @TODO : remember to reset the value
-          userId: 1,
-          userNickname: 'RexALun',
+          userId: userTemp.uid,
+          userNickname: userTemp.nickname,
           problemId: this.problem.pid,
           'language.languageName': this.language,
           code: this.code,
@@ -458,7 +455,7 @@
       }
     },
     computed: {
-      ...mapGetters(['problemSubmitDisabled', 'contestRuleType', 'OIContestRealTimePermission', 'contestStatus']),
+      ...mapGetters(['getUser', 'problemSubmitDisabled', 'contestRuleType', 'OIContestRealTimePermission', 'contestStatus']),
       contest () {
         return this.$store.state.contest.contest
       },

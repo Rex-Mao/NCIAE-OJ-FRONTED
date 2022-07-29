@@ -5,9 +5,9 @@
       <el-form ref="form" :model="problem" :rules="rules" label-position="top" label-width="70px">
         <el-row :gutter="20">
           <el-col :span="6" v-if="this.routeName === 'create-contest-problem' || this.routeName === 'edit-contest-problem'">
-            <el-form-item prop="pid" :label="$t('m.Display_ID')"
+            <el-form-item :label="$t('m.Display_ID')"
                           :required="this.routeName === 'create-contest-problem' || this.routeName === 'edit-contest-problem'">
-              <el-input :placeholder="$t('m.Display_ID')" v-model="problem.pid"></el-input>
+              <el-input :placeholder="$t('m.Display_ID')" v-model="problem.displayId"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="18">
@@ -46,18 +46,7 @@
               <el-input type="Number" :placeholder="$t('m.Memory_limit')" v-model="problem.memoryLimit"></el-input>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="4">
-            <el-form-item :label="$t('m.Visible')">
-              <el-switch
-                v-model="problem.visible"
-                active-text=""
-                inactive-text="">
-              </el-switch>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
+          <el-col :span="8" v-if="this.routeName === 'create-problem' || this.routeName === 'edit-problem'">
             <el-form-item :label="$t('m.Tag')" :error="error.tags" required>
               <span class="tags" v-if="problem.tags">
                 <el-tag
@@ -83,16 +72,6 @@
               <el-button class="button-new-tag" v-else size="small" @click="inputVisible = true">+ {{$t('m.New_Tag')}}</el-button>
             </el-form-item>
           </el-col>
-          <!-- <el-col :span="8">
-            <el-form-item :label="$t('m.Languages')" :error="error.languages" required>
-              <el-checkbox-group v-model="problem.languages">
-                <el-tooltip class="spj-radio" v-for="lang in allLanguage.results" :key="'spj'+lang.name" effect="dark"
-                            :content="lang.description" placement="top-start">
-                  <el-checkbox :label="lang.name"></el-checkbox>
-                </el-tooltip>
-              </el-checkbox-group>
-            </el-form-item>
-          </el-col> -->
         </el-row>
         <div v-if="problem.samples">
           <el-form-item v-for="(sample, index) in problem.samples" :key="'sample'+index">
@@ -107,7 +86,7 @@
                       :rows="5"
                       type="textarea"
                       :placeholder="$t('m.Input_Samples')"
-                      v-model="sample.input">
+                      v-model="sample.input" @input="change($event)">
                     </el-input>
                   </el-form-item>
                 </el-col>
@@ -117,7 +96,7 @@
                       :rows="5"
                       type="textarea"
                       :placeholder="$t('m.Output_Samples')"
-                      v-model="sample.output">
+                      v-model="sample.output" @input="change($event)">
                     </el-input>
                   </el-form-item>
                 </el-col>
@@ -173,45 +152,19 @@
         <el-row :gutter="20">
           <el-col :span="4">
             <el-form-item :label="$t('m.Type')">
-              <el-radio-group v-model="rule_type" :disabled="disableRuleType">
+              <el-radio-group v-model="rule_type">
                 <el-radio label="ACM">ACM</el-radio>
-                <!-- <el-radio label="OI">OI</el-radio> -->
               </el-radio-group>
             </el-form-item>
           </el-col>
-          <!-- <el-col :span="6">
-            <el-form-item :label="$t('m.TestCase')" :error="error.testcase">
-              <el-upload
-                action="/api/content-center/admin/checkpoints"
-                name="file"
-                :data="{spj: problem.spj}"
-                :show-file-list="true"
-                :on-success="uploadSucceeded"
-                :on-error="uploadFailed">
-                <el-button size="small" type="primary" icon="el-icon-fa-upload">Choose File</el-button>
-              </el-upload>
-            </el-form-item>
-          </el-col> -->
 
           <el-col :span="6">
             <el-form-item :label="$t('m.IOMode')">
               <el-radio-group v-model="io_mode">
                 <el-radio label="Standard IO">Standard IO</el-radio>
-                <!-- <el-radio label="File IO">File IO</el-radio> -->
               </el-radio-group>
             </el-form-item>
           </el-col>
-
-          <!-- <el-col :span="4" v-if="problem.io_mode.io_mode == 'File IO'">
-            <el-form-item :label="$t('m.InputFileName')" required>
-              <el-input type="text" v-model="problem.io_mode.input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="4" v-if="problem.io_mode.io_mode == 'File IO'">
-            <el-form-item :label="$t('m.OutputFileName')" required>
-              <el-input type="text" v-model="problem.io_mode.output"></el-input>
-            </el-form-item>
-          </el-col> -->
 
           <el-col :span="24">
             <el-table
@@ -224,18 +177,6 @@
               <el-table-column
                 prop="output"
                 :label="$t('m.Output')">
-              </el-table-column>
-              <el-table-column
-                prop="score"
-                :label="$t('m.Score')">
-                <template slot-scope="scope">
-                  <el-input
-                    size="small"
-                    :placeholder="$t('m.Score')"
-                    v-model="scope.row.score"
-                    :disabled="rule_type !== 'OI'">
-                  </el-input>
-                </template>
               </el-table-column>
             </el-table>
           </el-col>
@@ -276,13 +217,21 @@
         contest: {},
         problem: {
           title: '',
+          displayId: '',
+          tags: [{tid: '', tName: '', tDescription: ''}],
+          samples: [{sid: '', pid: '', input: '', output: ''}],
+          checkpoints: [{cpid: '', pid: '', input: '', output: ''}],
           languages: []
         },
         reProblem: {
           title: '',
+          displayId: '',
+          tags: [{tid: '', tName: '', tDescription: ''}],
+          samples: [{sid: '', pid: '', input: '', output: ''}],
+          checkpoints: [{cpid: '', pid: '', input: '', output: ''}],
           languages: []
         },
-        // testCaseUploaded: false,
+        isContestMode: false,
         inputVisible: false,
         tagInput: '',
         template: {},
@@ -308,6 +257,9 @@
       } else {
         this.mode = 'add'
       }
+      if (this.routeName === 'edit-contest-problem' || this.routeName === 'create-contest-problem') {
+        this.isContestMode = true
+      }
       this.problem = this.reProblem = {
         pid: '',
         addUid: '1',
@@ -317,7 +269,6 @@
         fOutput: '',
         timeLimit: 1000,
         memoryLimit: 65536,
-        // visible: true,
         tags: [{tid: '', tName: '', tDescription: ''}],
         samples: [{sid: '', pid: '', input: '', output: ''}],
         checkpoints: [{cpid: '', pid: '', input: '', output: ''}],
@@ -327,10 +278,9 @@
       }
       let contestID = this.$route.params.contestId
       if (contestID) {
-        this.problem.contest_id = this.reProblem.contest_id = contestID
+        this.problem.cid = this.reProblem.cid = contestID
         this.disableRuleType = true
         api.getContest(contestID).then(res => {
-          this.rule_type = this.rule_type = res.data.data.rule_type
           this.contest = res.data.data
         })
       }
@@ -341,13 +291,18 @@
         let funcName = {'edit-problem': 'getProblem', 'edit-contest-problem': 'getContestProblem'}[this.routeName]
         api[funcName](this.$route.params.problemId).then(problemRes => {
           let data = problemRes.data.data
-          this.problem = data
+          if (funcName === 'getContestProblem') {
+            console.log('This is contest problem mode!')
+            this.problem = data.problem
+            this.problem.displayId = data.displayId
+            this.problem.checkpoints = [{cpid: '', pid: '', input: '', output: ''}]
+          } else {
+            this.problem = data
+          }
         })
       } else {
         this.title = this.$i18n.t('m.Add_Problem')
       }
-      console.log('things init done...')
-      console.log(this.problem)
     },
     watch: {
       '$route' () {
@@ -356,6 +311,9 @@
       }
     },
     methods: {
+      change (e) {
+        this.$forceUpdate()
+      },
       querySearch (queryString, cb) {
         api.getProblemTagList().then(res => {
           let tagList = []
@@ -384,18 +342,22 @@
       },
       addSample () {
         this.problem.samples.push({sid: '', pid: '', input: '', output: ''})
+        this.$forceUpdate()
       },
       deleteSample (index) {
         this.problem.samples.splice(index, 1)
+        this.$forceUpdate()
       },
       addCheckpoint () {
         if (this.problem.checkpoints === null || this.problem.checkpoints === undefined) {
           this.problem.checkpoints = []
         }
         this.problem.checkpoints.push({cpid: '', pid: '', input: '', output: ''})
+        this.$forceUpdate()
       },
       deleteCheckpoint (index) {
         this.problem.checkpoints.splice(index, 1)
+        this.$forceUpdate()
       },
       submit () {
         if (!this.problem.samples.length) {
@@ -408,10 +370,14 @@
             return
           }
         }
-        if (!this.problem.tags.length) {
-          this.error.tags = 'Please add at least one tag'
-          this.$error(this.error.tags)
-          return
+        if (!this.isContestMode) {
+          if (!this.problem.tags.length) {
+            this.error.tags = 'Please add at least one tag'
+            this.$error(this.error.tags)
+            return
+          }
+        } else {
+          delete this.problem.tags
         }
         if (this.problem.specialJudge !== 0) {
           if (!this.problem.spj_code) {
@@ -425,11 +391,6 @@
             return
           }
         }
-        // if (!this.testCaseUploaded) {
-        //   this.error.testCase = 'Test case is not uploaded yet'
-        //   this.$error(this.error.testCase)
-        //   return
-        // }
         if (this.rule_type === 'OI') {
           for (let item of this.problem.test_case_score) {
             try {
@@ -453,7 +414,7 @@
         }[this.routeName]
         // edit contest problem 时, contest_id会被后来的请求覆盖掉
         if (funcName === 'editContestProblem') {
-          this.problem.contest_id = this.contest.id
+          this.problem.cid = this.contest.id
         }
         api[funcName](this.problem).then(res => {
           if (this.routeName === 'create-contest-problem' || this.routeName === 'edit-contest-problem') {

@@ -32,7 +32,7 @@
       </template>
 
       <template v-else>
-        <div v-katex v-html="announcement.noticeContent" key="content" class="content-container markdown-body"></div>
+        <div v-katex v-html="announcement.noticeContent" key="nid" class="content-container markdown-body"></div>
       </template>
     </transition-group>
   </Panel>
@@ -82,7 +82,7 @@
         this.btnLoading = true
         api.getContestAnnouncementList(this.$route.params.contestID).then(res => {
           this.btnLoading = false
-          this.announcements = res.data.data
+          this.announcements = res.data.data.results
         }, () => {
           this.btnLoading = false
         })

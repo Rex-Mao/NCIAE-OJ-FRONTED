@@ -110,6 +110,7 @@ export const m = {
   Contest_Rule_Type: '规则',
   Real_Time_Rank: '实时排名',
   Contest_Status: '状态',
+  Contest_Public: '公开',
   Allowed_IP_Ranges: '允许的 IP 范围',
   CIDR_Network: 'CIDR 网络',
   // Dashboard.vue

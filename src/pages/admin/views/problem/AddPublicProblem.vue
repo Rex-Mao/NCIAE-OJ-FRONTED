@@ -9,13 +9,13 @@
       <el-table-column
         label="ID"
         width="100"
-        prop="id">
+        prop="pid">
       </el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         label="DisplayID"
         width="200"
-        prop="_id">
-      </el-table-column>
+        prop="displayId">
+      </el-table-column> -->
       <el-table-column
         label="Title"
         prop="title">
@@ -27,7 +27,7 @@
         fixed="right">
         <template slot-scope="{row}">
           <icon-btn icon="plus" name="Add the problem"
-                    @click.native="handleAddProblem(row.id)"></icon-btn>
+                    @click.native="handleAddProblem(row.pid)"></icon-btn>
         </template>
       </el-table-column>
     </el-table>
@@ -84,9 +84,9 @@
       handleAddProblem (problemID) {
         this.$prompt('Please input display id for the contest problem', 'confirm').then(({value}) => {
           let data = {
-            problem_id: problemID,
-            contest_id: this.contestID,
-            display_id: value
+            pid: problemID,
+            cid: this.contestID,
+            displayId: value
           }
           api.addProblemFromPublic(data).then(() => {
             this.$emit('on-change')

@@ -59,8 +59,9 @@
     <panel title="Import FPS Problems (beta)">
       <el-upload
         ref="FPS"
-        action="/api/admin/import/fps"
+        action="/api/content-center/admin/problem/import_from_fps"
         name="file"
+        :headers="myheaders"
         :file-list="fileList2"
         :show-file-list="true"
         :with-credentials="true"
@@ -95,7 +96,8 @@
 </template>
 <script>
   import api from '@admin/api'
-
+  import storage from '@/utils/storage'
+  var jwt = 'Bearer ' + storage.get('JWT')
   export default {
     name: 'import_and_export',
     data () {
@@ -109,7 +111,10 @@
         loadingImporting: false,
         keyword: '',
         problems: [],
-        selected_problems: []
+        selected_problems: [],
+        myheaders: {
+          Authorization: jwt
+        }
       }
     },
     mounted () {

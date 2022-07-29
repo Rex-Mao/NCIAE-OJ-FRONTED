@@ -13,11 +13,11 @@
               <div slot="title">
                 {{contest.title}}
               </div>
-              <div slot="extra">
+              <!-- <div slot="extra">
                 <Tag type="dot" :color="countdownColor">
                   <span id="countdown">{{countdown}}</span>
                 </Tag>
-              </div>
+              </div> -->
               <div v-html="contest.description" class="markdown-body"></div>
               <div v-if="passwordFormVisible" class="contest-password">
                 <Input v-model="contestPassword" type="password"
@@ -58,18 +58,18 @@
           {{$t('m.Submissions')}}
         </VerticalMenu-item>
 
-        <VerticalMenu-item v-if="OIContestRealTimePermission"
+        <!-- <VerticalMenu-item v-if="OIContestRealTimePermission"
                            :disabled="contestMenuDisabled"
                            :route="{name: 'contest-rank', params: {contestID: contestID}}">
           <Icon type="stats-bars"></Icon>
           {{$t('m.Rankings')}}
-        </VerticalMenu-item>
+        </VerticalMenu-item> -->
 
-        <VerticalMenu-item v-if="showAdminHelper"
+        <!-- <VerticalMenu-item v-if="showAdminHelper"
                            :route="{name: 'acm-helper', params: {contestID: contestID}}">
           <Icon type="ios-paw"></Icon>
-          {{$t('m.Admin_Helper')}}
-        </VerticalMenu-item>
+          {{$t('m.ACM_Helper')}}
+        </VerticalMenu-item> -->
       </VerticalMenu>
     </div>
   </div>
@@ -97,31 +97,25 @@
           {
             title: this.$i18n.t('m.StartAt'),
             render: (h, params) => {
-              return h('span', time.utcToLocal(params.row.start_time))
+              return h('span', time.utcToLocal(params.row.startTime))
             }
           },
           {
             title: this.$i18n.t('m.EndAt'),
             render: (h, params) => {
-              return h('span', time.utcToLocal(params.row.end_time))
-            }
-          },
-          {
-            title: this.$i18n.t('m.ContestType'),
-            render: (h, params) => {
-              return h('span', this.$i18n.t('m.' + params.row.contest_type.replace(' ', '_')))
+              return h('span', time.utcToLocal(params.row.endTime))
             }
           },
           {
             title: this.$i18n.t('m.Rule'),
             render: (h, params) => {
-              return h('span', this.$i18n.t('m.' + params.row.rule_type))
+              return h('span', this.$i18n.t('m.ACM'))
             }
           },
           {
             title: this.$i18n.t('m.Creator'),
             render: (h, data) => {
-              return h('span', data.row.created_by.username)
+              return h('span', data.row.createUsername)
             }
           }
         ]
@@ -133,7 +127,7 @@
       this.$store.dispatch('getContest').then(res => {
         this.changeDomTitle({title: res.data.data.title})
         let data = res.data.data
-        let endTime = moment(data.end_time)
+        let endTime = moment(data.endTime)
         if (endTime.isAfter(moment(data.now))) {
           this.timer = setInterval(() => {
             this.$store.commit(types.NOW_ADD_1S)

@@ -10,10 +10,10 @@
           <div class="contest-content">
             <div class="contest-content-tags">
               <Button type="info" shape="circle" size="small" icon="calendar">
-                {{contest.start_time | localtime('YYYY-M-D HH:mm') }}
+                {{contest.startTime | localtime('YYYY-M-D HH:mm') }}
               </Button>
               <Button type="success" shape="circle" size="small" icon="android-time">
-                {{getDuration(contest.start_time, contest.end_time)}}
+                {{getDuration(contest.startTime, contest.endTime)}}
               </Button>
               <Button type="warning" shape="circle" size="small" icon="trophy">
                 {{contest.rule_type}}

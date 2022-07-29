@@ -9,8 +9,8 @@ const state = {
   rankLimit: 30,
   forceUpdate: false,
   contest: {
-    created_by: {},
-    contest_type: CONTEST_TYPE.PUBLIC
+    createUsername: '',
+    cPublic: CONTEST_TYPE.PUBLIC
   },
   contestProblems: [],
   itemVisible: {
@@ -27,8 +27,8 @@ const getters = {
   },
   contestStatus: (state, getters) => {
     if (!getters.contestLoaded) return null
-    let startTime = moment(state.contest.start_time)
-    let endTime = moment(state.contest.end_time)
+    let startTime = state.contest.startTime
+    let endTime = state.contest.endTime
     let now = state.now
 
     if (startTime > now) {
@@ -40,15 +40,17 @@ const getters = {
     }
   },
   contestRuleType: (state) => {
-    return state.contest.rule_type || null
+    return 'ACM'
   },
   isContestAdmin: (state, getters, _, rootGetters) => {
     return rootGetters.isAuthenticated &&
-      (state.contest.created_by.id === rootGetters.user.uid || rootGetters.user.admin_type === USER_TYPE.SUPER_ADMIN)
+      (state.contest.createUsername === rootGetters.user.nickname)
+      // @TODO change this area when you rebuild the project
+      // (state.contest.createUsername === rootGetters.user.nickname || rootGetters.user.admin_type === USER_TYPE.SUPER_ADMIN)
   },
   contestMenuDisabled: (state, getters) => {
     if (getters.isContestAdmin) return false
-    if (state.contest.contest_type === CONTEST_TYPE.PUBLIC) {
+    if (state.contest.cPublic === CONTEST_TYPE.PUBLIC) {
       return getters.contestStatus === CONTEST_STATUS.NOT_START
     }
     return !state.access
@@ -57,7 +59,7 @@ const getters = {
     if (getters.contestRuleType === 'ACM' || getters.contestStatus === CONTEST_STATUS.ENDED) {
       return true
     }
-    return state.contest.real_time_rank === true || getters.isContestAdmin
+    return true || getters.isContestAdmin
   },
   problemSubmitDisabled: (state, getters, _, rootGetters) => {
     if (getters.contestStatus === CONTEST_STATUS.ENDED) {
@@ -66,17 +68,17 @@ const getters = {
       return !getters.isContestAdmin
     }
     // @TODO remember reset the status
-    return false
-    // return !rootGetters.isAuthenticated
+    // return false
+    return !rootGetters.isAuthenticated
   },
   passwordFormVisible: (state, getters) => {
-    return state.contest.contest_type !== CONTEST_TYPE.PUBLIC && !state.access && !getters.isContestAdmin
+    return state.contest.cPublic !== CONTEST_TYPE.PUBLIC && !state.access && !getters.isContestAdmin
   },
   contestStartTime: (state) => {
-    return moment(state.contest.start_time)
+    return moment(state.contest.startTime)
   },
   contestEndTime: (state) => {
-    return moment(state.contest.end_time)
+    return moment(state.contest.endTime)
   },
   countdown: (state, getters) => {
     if (getters.contestStatus === CONTEST_STATUS.NOT_START) {
@@ -143,7 +145,7 @@ const actions = {
         let contest = res.data.data
         commit(types.CHANGE_CONTEST, {contest: contest})
         commit(types.NOW, {now: moment(contest.now)})
-        if (contest.contest_type === CONTEST_TYPE.PRIVATE) {
+        if (contest.cPublic === CONTEST_TYPE.PRIVATE) {
           dispatch('getContestAccess')
         }
       }, err => {
@@ -154,15 +156,15 @@ const actions = {
   getContestProblems ({commit, rootState}) {
     return new Promise((resolve, reject) => {
       api.getContestProblemList(rootState.route.params.contestID).then(res => {
-        res.data.data.sort((a, b) => {
-          if (a._id === b._id) {
+        res.data.data.results.sort((a, b) => {
+          if (a.displayId === b.displayId) {
             return 0
-          } else if (a._id > b._id) {
+          } else if (a.displayId > b.displayId) {
             return 1
           }
           return -1
         })
-        commit(types.CHANGE_CONTEST_PROBLEMS, {contestProblems: res.data.data})
+        commit(types.CHANGE_CONTEST_PROBLEMS, {contestProblems: res.data.data.results})
         resolve(res)
       }, () => {
         commit(types.CHANGE_CONTEST_PROBLEMS, {contestProblems: []})

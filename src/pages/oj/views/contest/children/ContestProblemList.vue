@@ -28,34 +28,25 @@
         ACMTableColumns: [
           {
             title: '#',
-            key: '_id',
+            key: 'displayId',
             sortType: 'asc',
             width: 150
           },
           {
             title: this.$i18n.t('m.Title'),
-            key: 'title'
+            render: (h, params) => {
+              return h('span', params.row.problem.title)
+            }
           },
           {
             title: this.$i18n.t('m.Total'),
-            key: 'submission_number'
+            key: 'submitNum'
           },
           {
             title: this.$i18n.t('m.AC_Rate'),
             render: (h, params) => {
-              return h('span', this.getACRate(params.row.accepted_number, params.row.submission_number))
+              return h('span', this.getACRate(params.row.solvedNum, params.row.submitNum))
             }
-          }
-        ],
-        OITableColumns: [
-          {
-            title: '#',
-            key: '_id',
-            width: 150
-          },
-          {
-            title: this.$i18n.t('m.Title'),
-            key: 'title'
           }
         ]
       }
@@ -68,9 +59,9 @@
         this.$store.dispatch('getContestProblems').then(res => {
           if (this.isAuthenticated) {
             if (this.contestRuleType === 'ACM') {
-              this.addStatusColumn(this.ACMTableColumns, res.data.data)
+              this.addStatusColumn(this.ACMTableColumns, res.data.data.results)
             } else if (this.OIContestRealTimePermission) {
-              this.addStatusColumn(this.ACMTableColumns, res.data.data)
+              this.addStatusColumn(this.ACMTableColumns, res.data.data.results)
             }
           }
         })
@@ -80,7 +71,7 @@
           name: 'contest-problem-details',
           params: {
             contestID: this.$route.params.contestID,
-            problemID: row._id
+            problemID: row.cpid
           }
         })
       }

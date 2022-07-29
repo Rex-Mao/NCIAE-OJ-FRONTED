@@ -34,16 +34,16 @@ export default {
     })
   },
   checkUsernameOrEmail (username, email) {
-    return ajax('check_username_or_email', 'post', {
+    return ajax('user-center/public/check_username_or_email', 'post', {
       data: {
-        username,
-        email
+        nickname: username,
+        email: email
       }
     })
   },
   // 注册
   register (data) {
-    return ajax('register', 'post', {
+    return ajax('user-center/public/register', 'post', {
       data
     })
   },
@@ -58,7 +58,10 @@ export default {
   },
   updateProfile (profile) {
     return ajax('user-center/profile', 'put', {
-      data: profile
+      data: profile,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
     })
   },
   freshDisplayID (userID) {
@@ -92,12 +95,18 @@ export default {
   },
   changePassword (data) {
     return ajax('user-center/profile/password', 'put', {
-      data
+      data,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
     })
   },
   changeEmail (data) {
     return ajax('user-center/profile/email', 'put', {
-      data
+      data,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
     })
   },
   getLanguages () {
@@ -140,57 +149,44 @@ export default {
         }
       })
     }
-    return ajax('contests', 'get', {
+    return ajax('content-center/public/contests', 'get', {
       params
     })
   },
-  getContest (id) {
-    return ajax('contest', 'get', {
-      params: {
-        id
-      }
-    })
+  getContest (cid) {
+    var url = 'content-center/contest/' + String(cid)
+    return ajax(url, 'get')
   },
-  getContestAccess (contestID) {
-    return ajax('contest/access', 'get', {
-      params: {
-        contest_id: contestID
-      }
-    })
+  getContestAccess (cid) {
+    var url = 'content-center/contest/access/' + String(cid)
+    return ajax(url, 'get')
   },
   checkContestPassword (contestID, password) {
     return ajax('contest/password', 'post', {
       data: {
-        contest_id: contestID,
+        cid: contestID,
         password
       }
     })
   },
   getContestAnnouncementList (contestId) {
-    return ajax('contest/announcement', 'get', {
-      params: {
-        contest_id: contestId
-      }
-    })
+    var url = 'content-center/contest/announcement/' + String(contestId)
+    return ajax(url, 'get')
   },
   getContestProblemList (contestId) {
-    return ajax('contest/problem', 'get', {
-      params: {
-        contest_id: contestId
-      }
-    })
+    var url = 'content-center/contest/problems/' + String(contestId)
+    return ajax(url, 'get')
   },
-  getContestProblem (problemID, contestID) {
-    return ajax('contest/problem', 'get', {
-      params: {
-        contest_id: contestID,
-        problem_id: problemID
-      }
-    })
+  getContestProblem (contestProblemID) {
+    var url = 'content-center/contest/problem/' + String(contestProblemID)
+    return ajax(url, 'get')
   },
   submitCode (data) {
     return ajax('content-center/submission', 'post', {
-      data
+      data,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
     })
   },
   getSubmissionList (offset, limit, params) {
@@ -203,7 +199,10 @@ export default {
   getContestSubmissionList (offset, limit, params) {
     params.limit = limit
     params.offset = offset
-    return ajax('content-center/contest_submissions', 'get', {
+    let contestId = params['contest_id']
+    var url = 'content-center/public/contest_submissions/' + String(contestId)
+    delete params['contest_id']
+    return ajax(url, 'get', {
       params
     })
   },
@@ -276,14 +275,6 @@ function ajax (url, method, options) {
   } else {
     params = data = headers = {}
   }
-  // data = qs.stringify(data)
-  // var headers = {}
-  // if (jwt !== null) {
-  //   headers['Authorization'] = 'Bearer ' + jwt
-  // }
-  // if (method === 'post') {
-  //   headers['Content-Type'] = 'application/x-www-form-urlencoded'
-  // }
   let jwt = storage.get('JWT')
   axios.defaults.headers.common['Authorization'] = 'Bearer ' + jwt
   if (headers['Content-Type'] !== undefined) {

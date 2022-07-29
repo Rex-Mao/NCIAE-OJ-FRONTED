@@ -16,14 +16,13 @@
         style="width: 100%">
         <el-table-column type="expand">
           <template slot-scope="props">
-            <p>Start Time: {{props.row.start_time | localtime }}</p>
-            <p>End Time: {{props.row.end_time | localtime }}</p>
-            <p>Create Time: {{props.row.create_time | localtime}}</p>
-            <p>Creator: {{props.row.created_by.username}}</p>
+            <p>Start Time: {{props.row.startTime | localtime }}</p>
+            <p>End Time: {{props.row.endTime | localtime }}</p>
+            <p>Creator: {{props.row.createUsername}}</p>
           </template>
         </el-table-column>
         <el-table-column
-          prop="id"
+          prop="cid"
           width="80"
           label="ID">
         </el-table-column>
@@ -32,18 +31,11 @@
           label="Title">
         </el-table-column>
         <el-table-column
-          label="Rule Type"
-          width="130">
-          <template slot-scope="scope">
-            <el-tag type="gray">{{scope.row.rule_type}}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="Contest Type"
+          label="Creator"
           width="180">
           <template slot-scope="scope">
-            <el-tag :type="scope.row.contest_type === 'Public' ? 'success' : 'primary'">
-              {{ scope.row.contest_type}}
+            <el-tag type="success">
+              {{ scope.row.createUsername}}
             </el-tag>
           </template>
         </el-table-column>
@@ -52,16 +44,18 @@
           width="130">
           <template slot-scope="scope">
             <el-tag
-              :type="scope.row.status === '-1' ? 'danger' : scope.row.status === '0' ? 'success' : 'primary'">
-              {{ scope.row.status | contestStatus}}
+              :type="scope.row.cStatus === -2 ? 'info' 
+              : scope.row.cStatus === -1 ? 'danger' 
+              : scope.row.cStatus === 0 ? 'success' : 'warning'">
+              {{ scope.row.cStatus | contestStatus}}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column
           width="100"
-          label="Visible">
+          label="Public">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.visible"
+            <el-switch v-model="scope.row.cPublic"
                        active-text=""
                        inactive-text=""
                        @change="handleVisibleSwitch(scope.row)">
@@ -73,12 +67,12 @@
           width="250"
           label="Operation">
           <div slot-scope="scope">
-            <icon-btn name="Edit" icon="edit" @click.native="goEdit(scope.row.id)"></icon-btn>
-            <icon-btn name="Problem" icon="list-ol" @click.native="goContestProblemList(scope.row.id)"></icon-btn>
+            <icon-btn name="Edit" icon="edit" @click.native="goEdit(scope.row.cid)"></icon-btn>
+            <icon-btn name="Problem" icon="list-ol" @click.native="goContestProblemList(scope.row.cid)"></icon-btn>
             <icon-btn name="Announcement" icon="info-circle"
-                      @click.native="goContestAnnouncement(scope.row.id)"></icon-btn>
-            <icon-btn icon="download" name="Download Accepted Submissions"
-                      @click.native="openDownloadOptions(scope.row.id)"></icon-btn>
+                      @click.native="goContestAnnouncement(scope.row.cid)"></icon-btn>
+            <!-- <icon-btn icon="download" name="Download Accepted Submissions"
+                      @click.native="openDownloadOptions(scope.row.cid)"></icon-btn> -->
           </div>
         </el-table-column>
       </el-table>

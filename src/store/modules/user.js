@@ -25,6 +25,13 @@ const getters = {
   },
   hasProblemPermission: (state, getters) => {
     return getters.user.problem_permission !== PROBLEM_PERMISSION.NONE
+  },
+  getUser: (state, getters) => {
+    var data = {
+      uid: getters.user.uid,
+      nickname: getters.user.nickname
+    }
+    return data
   }
 }
 

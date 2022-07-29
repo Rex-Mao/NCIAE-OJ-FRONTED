@@ -88,17 +88,20 @@ export const CONTEST_STATUS_REVERSE = {
   '-1': {
     name: 'Ended',
     color: 'red'
+  },
+  '-2': {
+    name: 'Not Online',
+    color: 'red'
   }
 }
 
 export const RULE_TYPE = {
-  ACM: 'ACM',
-  OI: 'OI'
+  ACM: 'ACM'
 }
 
 export const CONTEST_TYPE = {
-  PUBLIC: 'Public',
-  PRIVATE: 'Password Protected'
+  true: 'Public',
+  false: 'Password Protected'
 }
 
 export const USER_TYPE = {
